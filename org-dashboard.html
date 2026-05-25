@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html data-theme="dark" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Company Dashboard — ThinkPrint</title>
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-base-100 min-h-screen">
+
+  <div class="navbar bg-base-100 border-b border-base-200 px-6 sticky top-0 z-50">
+    <div class="navbar-start">
+      <a href="index.html" class="text-xl font-bold">Think<span class="text-primary">Print</span></a>
+    </div>
+    <div class="navbar-center hidden sm:flex">
+      <div class="badge badge-outline" id="org-name-badge">Company Dashboard</div>
+    </div>
+    <div class="navbar-end gap-2">
+      <button id="theme-toggle" onclick="toggleTheme()" class="btn btn-ghost btn-sm btn-circle">☀️</button>
+      <a href="dashboard.html" class="btn btn-ghost btn-sm">My Profile</a>
+      <button onclick="handleSignOut()" class="btn btn-ghost btn-sm text-error">Sign Out</button>
+    </div>
+  </div>
+
+  <div class="container mx-auto px-6 py-10 max-w-6xl">
+
+    <!-- Loading -->
+    <div id="loading" class="flex justify-center items-center min-h-64">
+      <span class="loading loading-spinner loading-lg text-primary"></span>
+    </div>
+
+    <!-- Guest view -->
+    <div id="guest-view" class="hidden text-center py-20">
+      <h2 class="text-2xl font-bold mb-4">Sign in to view your company dashboard</h2>
+      <p class="text-base-content/50 mb-6">This page is for company administrators and HR managers.</p>
+      <div class="flex gap-3 justify-center">
+        <a href="signup.html" class="btn btn-primary">Create Account</a>
+        <a href="login.html" class="btn btn-outline">Sign In</a>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div id="content" class="hidden">
+
+      <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
+        <div>
+          <h1 class="text-3xl font-bold" id="org-title">Your Organization</h1>
+          <p class="text-base-content/50">Team AI Readiness Overview</p>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="document.getElementById('invite-modal').showModal()" class="btn btn-primary btn-sm">+ Invite Employees</button>
+          <button onclick="exportCSV()" class="btn btn-outline btn-sm">Export CSV</button>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats stats-horizontal shadow w-full mb-8 bg-base-200">
+        <div class="stat">
+          <div class="stat-title">Team Score</div>
+          <div class="stat-value text-primary" id="team-score">—</div>
+          <div class="stat-desc">Average</div>
+        </div>
+        <div class="stat">
+          <div class="stat-title">Total Employees</div>
+          <div class="stat-value" id="total-employees">0</div>
+          <div class="stat-desc">In platform</div>
+        </div>
+        <div class="stat">
+          <div class="stat-title">Completed</div>
+          <div class="stat-value text-success" id="completed-count">0</div>
+          <div class="stat-desc">Assessments done</div>
+        </div>
+        <div class="stat">
+          <div class="stat-title">High Risk</div>
+          <div class="stat-value text-error" id="high-risk-count">0</div>
+          <div class="stat-desc">Need attention</div>
+        </div>
+      </div>
+
+      <!-- Risk breakdown -->
+      <div class="grid sm:grid-cols-3 gap-4 mb-8">
+        <div class="card bg-success/10 border border-success/20 shadow">
+          <div class="card-body text-center">
+            <div class="text-3xl font-bold text-success" id="ready-count">0</div>
+            <div class="text-sm text-base-content/60">Ready to use AI</div>
+            <div class="badge badge-success badge-sm">Score 70+</div>
+          </div>
+        </div>
+        <div class="card bg-warning/10 border border-warning/20 shadow">
+          <div class="card-body text-center">
+            <div class="text-3xl font-bold text-warning" id="training-count">0</div>
+            <div class="text-sm text-base-content/60">Needs training</div>
+            <div class="badge badge-warning badge-sm">Score 50–69</div>
+          </div>
+        </div>
+        <div class="card bg-error/10 border border-error/20 shadow">
+          <div class="card-body text-center">
+            <div class="text-3xl font-bold text-error" id="risk-count">0</div>
+            <div class="text-sm text-base-content/60">High risk</div>
+            <div class="badge badge-error badge-sm">Below 50</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Team table -->
+      <div class="card bg-base-200 shadow mb-8">
+        <div class="card-body">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="card-title">Team Members</h2>
+            <input type="text" id="search-input" placeholder="Search..."
+              class="input input-bordered input-sm w-48" oninput="filterTable()">
+          </div>
+          <div class="overflow-x-auto">
+            <table class="table" id="team-table">
+              <thead>
+                <tr>
+                  <th>Employee</th>
+                  <th>Role</th>
+                  <th>Score</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="team-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recruiter links -->
+      <div class="card bg-base-200 shadow mb-8">
+        <div class="card-body">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h2 class="card-title">Recruiter Tracking Links</h2>
+              <p class="text-sm text-base-content/50">Share with hiring managers</p>
+            </div>
+            <button onclick="generateLink()" class="btn btn-primary btn-sm">Generate Link</button>
+          </div>
+          <div id="links-list">
+            <p class="text-sm text-base-content/40 text-center py-4">
+              No links yet. Click Generate Link to create one.
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Invite Modal -->
+  <dialog id="invite-modal" class="modal">
+    <div class="modal-box">
+      <h3 class="font-bold text-lg mb-4">Invite Employees</h3>
+      <p class="text-sm text-base-content/50 mb-4">Share this link with your employees:</p>
+      <div class="flex gap-2">
+        <input type="text" id="invite-link" class="input input-bordered flex-1 text-xs" readonly>
+        <button onclick="copyInviteLink()" class="btn btn-primary btn-sm">Copy</button>
+      </div>
+      <div class="modal-action">
+        <form method="dialog"><button class="btn">Close</button></form>
+      </div>
+    </div>
+    <form method="dialog" class="modal-backdrop"><button>close</button></form>
+  </dialog>
+
+  <div id="toast" class="toast toast-top toast-end hidden">
+    <div class="alert alert-success"><span id="toast-msg">Done!</span></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/theme.js"></script>
+  <script>
+
+    let allMembers = []
+    let currentOrgId = null
+    let inviteLink = ''
+
+    function showToast(msg) {
+      document.getElementById('toast-msg').textContent = msg || 'Done!'
+      const t = document.getElementById('toast')
+      t.classList.remove('hidden')
+      setTimeout(() => t.classList.add('hidden'), 2500)
+    }
+
+    async function handleSignOut() {
+      await db.auth.signOut()
+      window.location.href = 'login.html'
+    }
+
+    function filterTable() {
+      const q = document.getElementById('search-input').value.toLowerCase()
+      document.querySelectorAll('#team-tbody tr').forEach(row => {
+        row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none'
+      })
+    }
+
+    function copyInviteLink() {
+      navigator.clipboard.writeText(inviteLink)
+      showToast('Invite link copied!')
+    }
+
+    function generateLink() {
+      const token = Math.random().toString(36).substr(2, 6).toUpperCase()
+      const link = `${window.location.origin}/report.html?recruiter=${token}`
+      const list = document.getElementById('links-list')
+
+      // Remove empty state message
+      const empty = list.querySelector('p')
+      if (empty) empty.remove()
+
+      list.innerHTML += `
+        <div class="flex items-center justify-between p-3 bg-base-100 rounded-lg mt-2">
+          <div class="font-mono text-xs text-base-content/60 truncate flex-1">${link}</div>
+          <button onclick="navigator.clipboard.writeText('${link}');showToast('Link copied!')"
+            class="btn btn-xs btn-outline ml-3">Copy</button>
+        </div>
+      `
+    }
+
+    function exportCSV() {
+      if (!allMembers.length) { showToast('No data to export'); return }
+      const rows = [['Name', 'Email', 'Score', 'Status']]
+      allMembers.forEach(m => {
+        const score = m.ai_trust_score || 0
+        const status = !score ? 'Pending'
+          : score >= 70 ? 'Ready'
+          : score >= 50 ? 'Needs Training' : 'High Risk'
+        rows.push([m.full_name || '—', m.email || '—', score || '—', status])
+      })
+      const csv = rows.map(r => r.join(',')).join('\n')
+      const blob = new Blob([csv], { type: 'text/csv' })
+      const a = document.createElement('a')
+      a.href = URL.createObjectURL(blob)
+      a.download = 'team-readiness.csv'
+      a.click()
+    }
+
+    async function init() {
+      // ── SUPABASE: get current session ──────
+      const session = await getSession()
+      document.getElementById('loading').classList.add('hidden')
+
+      if (!session) {
+        document.getElementById('guest-view').classList.remove('hidden')
+        return
+      }
+
+      // ── SUPABASE: get admin profile ─────────
+      const { data: profile } = await db
+        .from('profiles')
+        .select('*, organizations(*)')
+        .eq('id', session.user.id)
+        .single()
+
+      currentOrgId = profile?.org_id || null
+
+      // Set org name
+      const org = profile?.organizations
+      if (org) {
+        document.getElementById('org-title').textContent = org.name
+        document.getElementById('org-name-badge').textContent = org.name
+      }
+
+      // Set invite link
+      inviteLink = `${window.location.origin}/signup.html?org=${currentOrgId || session.user.id}`
+      document.getElementById('invite-link').value = inviteLink
+
+      // ── SUPABASE: fetch team members ────────
+      let membersQuery = db.from('profiles').select('*')
+
+      if (currentOrgId) {
+        membersQuery = membersQuery.eq('org_id', currentOrgId)
+      } else {
+        // If no org — just show current user
+        membersQuery = membersQuery.eq('id', session.user.id)
+      }
+
+      const { data: members } = await membersQuery
+        .order('full_name', { ascending: true })
+
+      allMembers = members || []
+
+      const total = allMembers.length
+      document.getElementById('total-employees').textContent = total
+
+      let ready = 0, training = 0, highRisk = 0, completed = 0, totalScore = 0
+      const tbody = document.getElementById('team-tbody')
+      tbody.innerHTML = ''
+
+      allMembers.forEach(m => {
+        const score = m.ai_trust_score || 0
+        const hasScore = score > 0
+
+        if (hasScore) {
+          completed++
+          totalScore += score
+          if (score >= 70) ready++
+          else if (score >= 50) training++
+          else highRisk++
+        }
+
+        const statusBadge = !hasScore
+          ? '<div class="badge badge-ghost badge-sm">Pending</div>'
+          : score >= 70
+          ? '<div class="badge badge-success badge-sm">Ready</div>'
+          : score >= 50
+          ? '<div class="badge badge-warning badge-sm">Needs Training</div>'
+          : '<div class="badge badge-error badge-sm">High Risk</div>'
+
+        const scoreDisplay = hasScore
+          ? `<span class="font-bold ${score >= 70 ? 'text-success' : score >= 50 ? 'text-warning' : 'text-error'}">${score}%</span>`
+          : '<span class="text-base-content/30">—</span>'
+
+        const initials = (m.full_name || '?')
+          .split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
+
+        tbody.innerHTML += `
+          <tr>
+            <td>
+              <div class="flex items-center gap-3">
+                <div class="avatar placeholder">
+                  <div class="bg-neutral text-neutral-content rounded-full w-8">
+                    <span class="text-xs">${initials}</span>
+                  </div>
+                </div>
+                <div>
+                  <div class="font-medium text-sm">${m.full_name || '—'}</div>
+                  <div class="text-xs text-base-content/40">${m.email || ''}</div>
+                </div>
+              </div>
+            </td>
+            <td class="text-sm text-base-content/50">${m.role || 'employee'}</td>
+            <td>${scoreDisplay}</td>
+            <td>${statusBadge}</td>
+            <td>
+              ${hasScore
+                ? `<a href="dashboard.html?user=${m.id}" class="btn btn-xs btn-outline">View</a>`
+                : `<button onclick="navigator.clipboard.writeText('${inviteLink}');showToast('Invite copied!')" class="btn btn-xs btn-ghost">Copy Invite</button>`
+              }
+            </td>
+          </tr>
+        `
+      })
+
+      // Update stats
+      document.getElementById('completed-count').textContent = completed
+      document.getElementById('high-risk-count').textContent = highRisk
+      document.getElementById('ready-count').textContent = ready
+      document.getElementById('training-count').textContent = training
+      document.getElementById('risk-count').textContent = highRisk
+
+      const avg = completed > 0 ? Math.round(totalScore / completed) : 0
+      document.getElementById('team-score').textContent = avg > 0 ? avg + '%' : '—'
+
+      document.getElementById('content').classList.remove('hidden')
+    }
+
+    init()
+  </script>
+</body>
+</html>

@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html data-theme="dark" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Report — ThinkPrint</title>
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-base-100 min-h-screen">
+
+  <div class="navbar bg-base-100 border-b border-base-200 px-6 sticky top-0 z-50">
+    <div class="navbar-start">
+      <a href="index.html" class="text-xl font-bold">Think<span class="text-primary">Print</span></a>
+    </div>
+    <div class="navbar-end gap-2">
+      <button id="theme-toggle" onclick="toggleTheme()" class="btn btn-ghost btn-sm btn-circle">☀️</button>
+      <a href="dashboard.html" class="btn btn-ghost btn-sm">Dashboard</a>
+    </div>
+  </div>
+
+  <div class="container mx-auto px-6 py-10 max-w-3xl">
+
+    <!-- Loading -->
+    <div id="loading" class="flex flex-col items-center justify-center min-h-96 gap-4">
+      <span class="loading loading-spinner loading-lg text-primary"></span>
+      <p class="text-base-content/50">Generating your AI diagnosis...</p>
+      <p class="text-xs text-base-content/30">This may take up to 15 seconds</p>
+    </div>
+
+    <!-- No session -->
+    <div id="no-session" class="hidden text-center py-20">
+      <div class="alert alert-warning max-w-sm mx-auto mb-6">
+        <span>No session found. Please complete an assessment first.</span>
+      </div>
+      <a href="assessment.html" class="btn btn-primary">Take Assessment</a>
+    </div>
+
+    <!-- Error -->
+    <div id="error-screen" class="hidden text-center py-20">
+      <div class="alert alert-error max-w-sm mx-auto mb-6">
+        <span id="error-msg">Something went wrong. Please try again.</span>
+      </div>
+      <a href="assessment.html" class="btn btn-primary">Retake Assessment</a>
+    </div>
+
+    <!-- Report -->
+    <div id="report-content" class="hidden">
+
+      <!-- Header -->
+      <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+        <div>
+          <div class="badge badge-primary badge-outline mb-2">ThinkPrint Report</div>
+          <h1 class="text-3xl font-bold" id="report-name">Your Report</h1>
+          <p class="text-base-content/50 text-sm" id="report-date"></p>
+        </div>
+        <div class="radial-progress text-primary text-2xl font-bold"
+             id="score-ring"
+             style="--value:0; --size:6rem;"
+             role="progressbar">
+          <span id="score-display">0</span>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="flex items-center gap-3 mb-6">
+        <div class="badge badge-lg badge-primary" id="proficiency-label">—</div>
+        <span class="text-base-content/50 text-sm" id="risk-profile"></span>
+      </div>
+
+      <!-- Dimensions -->
+      <div class="card bg-base-200 shadow mb-6">
+        <div class="card-body">
+          <h2 class="card-title mb-4">Judgment Dimensions</h2>
+          <div class="grid sm:grid-cols-2 gap-4" id="dimensions-grid"></div>
+        </div>
+      </div>
+
+      <!-- Strengths & Blind Spots -->
+      <div class="grid sm:grid-cols-2 gap-6 mb-6">
+        <div class="card bg-base-200 shadow">
+          <div class="card-body">
+            <h2 class="card-title text-success text-base">✓ Strengths</h2>
+            <ul id="strengths-list" class="space-y-2 text-sm text-base-content/70"></ul>
+          </div>
+        </div>
+        <div class="card bg-base-200 shadow">
+          <div class="card-body">
+            <h2 class="card-title text-warning text-base">△ Blind Spots</h2>
+            <ul id="blindspots-list" class="space-y-2 text-sm text-base-content/70"></ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recommendation -->
+      <div class="card bg-base-200 shadow mb-6">
+        <div class="card-body">
+          <h2 class="card-title mb-3">Professional Recommendation</h2>
+          <p id="recommendation-text" class="text-base-content/70 leading-relaxed text-sm"></p>
+        </div>
+      </div>
+
+      <!-- Breakdown -->
+      <div class="card bg-base-200 shadow mb-8">
+        <div class="card-body">
+          <h2 class="card-title mb-4">Scenario Breakdown</h2>
+          <div class="overflow-x-auto">
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Scenario</th>
+                  <th>Confidence</th>
+                  <th>Time</th>
+                </tr>
+              </thead>
+              <tbody id="breakdown-table"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex flex-wrap gap-3 justify-center">
+        <a href="certificate.html" id="cert-link" class="btn btn-primary hidden">View Certificate</a>
+        <button onclick="window.print()" class="btn btn-outline">Download PDF</button>
+        <a href="assessment.html" class="btn btn-outline">Retake Assessment</a>
+        <a href="dashboard.html" class="btn btn-ghost">Dashboard</a>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/theme.js"></script>
+  <script>
+
+    // ── Render report UI ──────────────────────
+    function renderReport(report, name, responses) {
+      document.getElementById('report-name').textContent = name || 'Your Report'
+      document.getElementById('report-date').textContent =
+        new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+
+      // Score
+      const score = report.readiness_score
+      const ring = document.getElementById('score-ring')
+      ring.style.setProperty('--value', score)
+      document.getElementById('score-display').textContent = score
+      document.getElementById('proficiency-label').textContent = report.proficiency_label || '—'
+      document.getElementById('risk-profile').textContent =
+        report.risk_profile ? '· ' + report.risk_profile : ''
+      document.getElementById('recommendation-text').textContent =
+        report.professional_recommendation || ''
+
+      // Dimensions
+      const dims = report.dimensions || {}
+      const dimLabels = {
+        data_safety: 'Data Safety',
+        output_verification: 'Output Verification',
+        judgment_vs_delegation: 'Judgment vs Delegation',
+        business_risk_awareness: 'Business Risk Awareness'
+      }
+      const grid = document.getElementById('dimensions-grid')
+      Object.entries(dims).forEach(([key, val]) => {
+        const color = val >= 75 ? 'progress-primary'
+          : val >= 50 ? 'progress-warning' : 'progress-error'
+        grid.innerHTML += `
+          <div>
+            <div class="flex justify-between text-sm mb-1">
+              <span>${dimLabels[key] || key}</span>
+              <span class="font-bold">${val}%</span>
+            </div>
+            <progress class="progress ${color} w-full" value="${val}" max="100"></progress>
+          </div>
+        `
+      })
+
+      // Strengths
+      const sl = document.getElementById('strengths-list')
+      ;(report.strengths || []).forEach(s => {
+        sl.innerHTML += `<li class="flex gap-2"><span class="text-success">✓</span>${s}</li>`
+      })
+
+      // Blind spots
+      const bl = document.getElementById('blindspots-list')
+      ;(report.blind_spots || []).forEach(b => {
+        bl.innerHTML += `<li class="flex gap-2"><span class="text-warning">△</span>${b}</li>`
+      })
+
+      // Breakdown table
+      const tbody = document.getElementById('breakdown-table')
+      ;(responses || []).forEach(r => {
+        const time = r.time_taken_secs < 60
+          ? r.time_taken_secs + 's'
+          : Math.floor(r.time_taken_secs / 60) + 'm ' + (r.time_taken_secs % 60) + 's'
+        tbody.innerHTML += `
+          <tr>
+            <td class="text-base-content/40">${r.scenario_index + 1}</td>
+            <td class="text-sm font-medium">${r.scenario_title}</td>
+            <td><div class="badge badge-outline badge-sm">${r.confidence_level}/5</div></td>
+            <td class="text-xs text-base-content/50">${time}</td>
+          </tr>
+        `
+      })
+
+      document.getElementById('loading').classList.add('hidden')
+      document.getElementById('report-content').classList.remove('hidden')
+    }
+
+    // ── Generate AI report via Claude ─────────
+    async function generateAIReport(responses) {
+      const summary = responses.map((r, i) =>
+        `Scenario ${i + 1} (${r.scenario_title}):
+Choice: ${r.choice_made}
+Justification: ${r.justification}
+Confidence: ${r.confidence_level}/5
+Time: ${r.time_taken_secs}s`
+      ).join('\n\n')
+
+      const prompt = `You are an AI professional judgment analyst for ThinkPrint.
+
+Analyze these AI readiness assessment responses and return a diagnosis.
+
+RESPONSES:
+${summary}
+
+Return ONLY valid JSON with this exact structure (no markdown, no code blocks):
+{
+  "readiness_score": <integer 0-100>,
+  "proficiency_label": "<Beginner|Developing|Practitioner|Senior Practitioner|Expert>",
+  "risk_profile": "<High Risk|Medium Risk|Low Risk>",
+  "dimensions": {
+    "data_safety": <integer 0-100>,
+    "output_verification": <integer 0-100>,
+    "judgment_vs_delegation": <integer 0-100>,
+    "business_risk_awareness": <integer 0-100>
+  },
+  "strengths": ["<strength 1>", "<strength 2>"],
+  "blind_spots": ["<blind spot 1>", "<blind spot 2>"],
+  "professional_recommendation": "<2-3 sentence recommendation>",
+  "recruiter_summary": "<1 paragraph for hiring manager>"
+}`
+
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          messages: [{ role: 'user', content: prompt }]
+        })
+      })
+
+      const data = await res.json()
+      const text = data.content?.[0]?.text || ''
+      try {
+        return JSON.parse(text)
+      } catch {
+        return JSON.parse(text.replace(/```json|```/g, '').trim())
+      }
+    }
+
+    // ── Main init ─────────────────────────────
+    async function init() {
+      const params = new URLSearchParams(window.location.search)
+      const sessionId = params.get('session')
+
+      if (!sessionId) {
+        document.getElementById('loading').classList.add('hidden')
+        document.getElementById('no-session').classList.remove('hidden')
+        return
+      }
+
+      // ── SUPABASE: get current user ──────────
+      const session = await getSession()
+      const userId = session?.user?.id || null
+
+      // ── SUPABASE: check if report exists ────
+      const { data: existing } = await db
+        .from('assessment_reports')
+        .select('*')
+        .eq('session_id', sessionId)
+        .single()
+
+      // ── SUPABASE: fetch step responses ──────
+      const { data: responses } = await db
+        .from('step_responses')
+        .select('*')
+        .eq('session_id', sessionId)
+        .order('scenario_index', { ascending: true })
+
+      // ── SUPABASE: get user name ─────────────
+      let name = 'Your Report'
+      if (userId) {
+        const { data: profile } = await db
+          .from('profiles')
+          .select('full_name')
+          .eq('id', userId)
+          .single()
+        name = profile?.full_name || name
+      }
+
+      let report = existing
+
+      // Generate AI report if not saved yet
+      if (!report && responses?.length) {
+        try {
+          const aiResult = await generateAIReport(responses)
+          report = aiResult
+
+          if (userId) {
+            // ── SUPABASE: save report ───────────
+            await db.from('assessment_reports').insert({
+              session_id: sessionId,
+              user_id: userId,
+              readiness_score: aiResult.readiness_score,
+              proficiency_label: aiResult.proficiency_label,
+              dimensions: aiResult.dimensions,
+              strengths: aiResult.strengths,
+              blind_spots: aiResult.blind_spots,
+              professional_recommendation: aiResult.professional_recommendation,
+              ai_raw_response: aiResult
+            })
+
+            // ── SUPABASE: update trust score ────
+            await db.from('profiles')
+              .update({ ai_trust_score: aiResult.readiness_score })
+              .eq('id', userId)
+
+            // ── SUPABASE: update session score ──
+            await db.from('assessment_sessions')
+              .update({ raw_score: aiResult.readiness_score })
+              .eq('id', sessionId)
+
+            // ── SUPABASE: issue certificate ─────
+            if (aiResult.readiness_score >= 60) {
+              const certNum = 'THP-' +
+                Math.random().toString(36).substr(2, 4).toUpperCase() + '-' +
+                Math.random().toString(36).substr(2, 2).toUpperCase()
+              await db.from('certificates').insert({
+                user_id: userId,
+                session_id: sessionId,
+                cert_number: certNum,
+                readiness_score: aiResult.readiness_score
+              })
+            }
+          }
+        } catch (e) {
+          document.getElementById('loading').classList.add('hidden')
+          document.getElementById('error-screen').classList.remove('hidden')
+          document.getElementById('error-msg').textContent =
+            'AI analysis failed. Please try again.'
+          return
+        }
+      }
+
+      if (!report) {
+        document.getElementById('loading').classList.add('hidden')
+        document.getElementById('error-screen').classList.remove('hidden')
+        document.getElementById('error-msg').textContent =
+          'No report data found for this session.'
+        return
+      }
+
+      // ── SUPABASE: get certificate link ──────
+      if (userId) {
+        const { data: cert } = await db
+          .from('certificates')
+          .select('verify_token')
+          .eq('session_id', sessionId)
+          .single()
+
+        if (cert) {
+          const certLink = document.getElementById('cert-link')
+          certLink.href = `certificate.html?token=${cert.verify_token}`
+          certLink.classList.remove('hidden')
+        }
+      }
+
+      renderReport(report, name, responses)
+    }
+
+    init()
+  </script>
+</body>
+</html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html data-theme="dark" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Certificate — ThinkPrint</title>
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-base-200 min-h-screen">
+
+  <div class="navbar bg-base-100 border-b border-base-200 px-6">
+    <div class="navbar-start">
+      <a href="index.html" class="text-xl font-bold">Think<span class="text-primary">Print</span></a>
+    </div>
+    <div class="navbar-end gap-2">
+      <button id="theme-toggle" onclick="toggleTheme()" class="btn btn-ghost btn-sm btn-circle">☀️</button>
+      <a href="dashboard.html" class="btn btn-ghost btn-sm">Dashboard</a>
+    </div>
+  </div>
+
+  <div class="container mx-auto px-6 py-10 max-w-2xl">
+
+    <!-- Loading -->
+    <div id="loading" class="flex justify-center items-center min-h-64">
+      <span class="loading loading-spinner loading-lg text-primary"></span>
+    </div>
+
+    <!-- Error -->
+    <div id="error-screen" class="hidden text-center py-20">
+      <div class="alert alert-error max-w-sm mx-auto mb-6">
+        <span>Certificate not found or invalid link.</span>
+      </div>
+      <a href="index.html" class="btn btn-primary">Go Home</a>
+    </div>
+
+    <!-- Certificate -->
+    <div id="cert-content" class="hidden">
+
+      <div class="text-center mb-6">
+        <div class="badge badge-success badge-lg gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+          </svg>
+          Verified Certificate
+        </div>
+      </div>
+
+      <div class="card bg-base-100 shadow-xl mb-6">
+        <div class="card-body text-center">
+
+          <p class="text-base-content/40 text-sm uppercase tracking-widest font-semibold">ThinkPrint</p>
+          <p class="text-base-content/50 text-sm mb-4">AI Readiness Verification Platform</p>
+
+          <div class="divider">certifies that</div>
+
+          <h1 class="text-4xl font-bold mb-2" id="cert-name">...</h1>
+          <p class="text-base-content/50 mb-6">has demonstrated professional AI readiness judgment</p>
+
+          <div class="flex justify-center mb-6">
+            <div class="radial-progress text-primary text-3xl font-bold"
+                 id="cert-score-ring"
+                 style="--value:0; --size:8rem;"
+                 role="progressbar">
+              <span id="cert-score">0</span>
+            </div>
+          </div>
+
+          <div class="badge badge-primary badge-lg mb-6" id="cert-label">—</div>
+
+          <div class="divider"></div>
+
+          <div class="grid grid-cols-3 gap-4 text-sm">
+            <div>
+              <p class="text-base-content/40 uppercase tracking-widest text-xs mb-1">Assessment</p>
+              <p class="font-medium">AI Readiness</p>
+            </div>
+            <div>
+              <p class="text-base-content/40 uppercase tracking-widest text-xs mb-1">Issued</p>
+              <p class="font-medium" id="cert-date">—</p>
+            </div>
+            <div>
+              <p class="text-base-content/40 uppercase tracking-widest text-xs mb-1">Certificate</p>
+              <p class="font-medium font-mono text-xs" id="cert-number">—</p>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <p class="text-xs text-base-content/30 font-mono" id="cert-verify-url"></p>
+
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex flex-wrap gap-3 justify-center mb-6">
+        <button onclick="window.print()" class="btn btn-primary">Download PDF</button>
+        <button onclick="copyLink()" class="btn btn-outline">Copy Link</button>
+        <a href="dashboard.html" class="btn btn-ghost">Dashboard</a>
+      </div>
+
+      <!-- LinkedIn -->
+      <div class="card bg-base-100 shadow">
+        <div class="card-body flex-row items-center justify-between gap-4">
+          <div>
+            <h3 class="font-bold">Share on LinkedIn</h3>
+            <p class="text-sm text-base-content/50">Add this certificate to your profile</p>
+          </div>
+          <a id="linkedin-share" href="#" target="_blank" class="btn btn-outline btn-sm">Share →</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="toast" class="toast toast-top toast-end hidden">
+    <div class="alert alert-success"><span>Link copied!</span></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/theme.js"></script>
+  <script>
+
+    function copyLink() {
+      navigator.clipboard.writeText(window.location.href)
+      const t = document.getElementById('toast')
+      t.classList.remove('hidden')
+      setTimeout(() => t.classList.add('hidden'), 2500)
+    }
+
+    async function init() {
+      const params = new URLSearchParams(window.location.search)
+      const token = params.get('token')
+
+      if (!token) {
+        document.getElementById('loading').classList.add('hidden')
+        document.getElementById('error-screen').classList.remove('hidden')
+        return
+      }
+
+      // ── SUPABASE: fetch certificate by token ─
+      // RLS allows public read so anyone with link can view
+      const { data: cert, error } = await db
+        .from('certificates')
+        .select('*')
+        .eq('verify_token', token)
+        .single()
+
+      if (error || !cert) {
+        document.getElementById('loading').classList.add('hidden')
+        document.getElementById('error-screen').classList.remove('hidden')
+        return
+      }
+
+      // ── SUPABASE: fetch profile name ─────────
+      const { data: profile } = await db
+        .from('profiles')
+        .select('full_name')
+        .eq('id', cert.user_id)
+        .single()
+
+      const name = profile?.full_name || 'Professional'
+      const score = cert.readiness_score
+      const date = new Date(cert.issued_at).toLocaleDateString('en-US', {
+        month: 'long', year: 'numeric'
+      })
+      const label = score >= 85 ? 'Expert'
+        : score >= 70 ? 'Senior Practitioner'
+        : score >= 55 ? 'Practitioner'
+        : 'Developing'
+
+      // Render
+      document.getElementById('cert-name').textContent = name
+      document.getElementById('cert-date').textContent = date
+      document.getElementById('cert-number').textContent = cert.cert_number
+      document.getElementById('cert-label').textContent = label
+      document.getElementById('cert-verify-url').textContent =
+        'Verify at: ' + window.location.href
+
+      const ring = document.getElementById('cert-score-ring')
+      ring.style.setProperty('--value', score)
+      document.getElementById('cert-score').textContent = score
+
+      // LinkedIn share
+      const shareUrl = encodeURIComponent(window.location.href)
+      const shareText = encodeURIComponent(
+        `I just earned my AI Readiness Certificate from ThinkPrint — Score: ${score}%. Verify it here:`
+      )
+      document.getElementById('linkedin-share').href =
+        `https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}&summary=${shareText}`
+
+      document.getElementById('loading').classList.add('hidden')
+      document.getElementById('cert-content').classList.remove('hidden')
+    }
+
+    init()
+  </script>
+</body>
+</html>

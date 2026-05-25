@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html data-theme="dark" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — ThinkPrint</title>
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-base-100 min-h-screen">
+
+  <div class="navbar bg-base-100 border-b border-base-200 px-6 sticky top-0 z-50">
+    <div class="navbar-start">
+      <a href="index.html" class="text-xl font-bold">Think<span class="text-primary">Print</span></a>
+    </div>
+    <div class="navbar-end gap-2">
+      <button id="theme-toggle" onclick="toggleTheme()" class="btn btn-ghost btn-sm btn-circle">☀️</button>
+      <div class="dropdown dropdown-end">
+        <div tabindex="0" role="button" class="btn btn-ghost btn-sm gap-2">
+          <div class="avatar placeholder">
+            <div class="bg-neutral text-neutral-content rounded-full w-8">
+              <span id="avatar-initials" class="text-xs">?</span>
+            </div>
+          </div>
+          <span id="nav-name" class="hidden sm:block text-sm">...</span>
+        </div>
+        <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[1] w-48 p-2 shadow border border-base-200 mt-2">
+          <li><a href="assessment.html">Take Assessment</a></li>
+          <li><hr class="my-1"></li>
+          <li><a onclick="handleSignOut()" class="text-error cursor-pointer">Sign Out</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="container mx-auto px-6 py-10 max-w-5xl">
+
+    <!-- Loading -->
+    <div id="loading" class="flex justify-center items-center min-h-64">
+      <span class="loading loading-spinner loading-lg text-primary"></span>
+    </div>
+
+    <!-- Guest view -->
+    <div id="guest-view" class="hidden text-center py-20">
+      <h2 class="text-2xl font-bold mb-4">Sign in to view your dashboard</h2>
+      <p class="text-base-content/50 mb-6">Create an account to save your results and earn certificates.</p>
+      <div class="flex gap-3 justify-center">
+        <a href="signup.html" class="btn btn-primary">Create Account</a>
+        <a href="login.html" class="btn btn-outline">Sign In</a>
+      </div>
+    </div>
+
+    <!-- Logged in content -->
+    <div id="content" class="hidden">
+
+      <div class="mb-8">
+        <h1 class="text-3xl font-bold mb-1">Welcome back, <span class="text-primary" id="greeting-name">...</span></h1>
+        <p class="text-base-content/50">Your AI Readiness Profile</p>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats stats-horizontal shadow w-full mb-8 bg-base-200">
+        <div class="stat">
+          <div class="stat-title">AI Readiness Score</div>
+          <div class="stat-value text-primary" id="trust-score">—</div>
+          <div class="stat-desc" id="score-label">Complete an assessment</div>
+        </div>
+        <div class="stat">
+          <div class="stat-title">Assessments Completed</div>
+          <div class="stat-value" id="assessment-count">0</div>
+          <div class="stat-desc">Total attempts</div>
+        </div>
+        <div class="stat">
+          <div class="stat-title">Certificates Earned</div>
+          <div class="stat-value" id="cert-count">0</div>
+          <div class="stat-desc">Shareable credentials</div>
+        </div>
+      </div>
+
+      <!-- CTA if no assessments -->
+      <div id="cta-start" class="hidden mb-8">
+        <div class="card bg-base-200 shadow">
+          <div class="card-body text-center">
+            <h2 class="card-title justify-center text-2xl mb-2">Ready to find out your AI Readiness Score?</h2>
+            <p class="text-base-content/50 mb-6">Takes 15 minutes. Get an AI-powered professional report instantly.</p>
+            <div class="card-actions justify-center">
+              <a href="assessment.html" class="btn btn-primary btn-lg">Start Assessment →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Assessments -->
+      <div id="recent-section" class="hidden mb-8">
+        <h2 class="text-xl font-bold mb-4">Recent Assessments</h2>
+        <div class="overflow-x-auto">
+          <table class="table bg-base-200 rounded-xl">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Score</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="assessments-table"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Certificates -->
+      <div id="certs-section" class="hidden mb-8">
+        <h2 class="text-xl font-bold mb-4">My Certificates</h2>
+        <div id="certs-grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      </div>
+
+      <!-- Quick Actions -->
+      <h2 class="text-xl font-bold mb-4">Quick Actions</h2>
+      <div class="grid sm:grid-cols-3 gap-4">
+        <a href="assessment.html" class="card bg-base-200 shadow hover:shadow-lg transition-shadow">
+          <div class="card-body text-center">
+            <div class="text-3xl mb-2">🎯</div>
+            <h3 class="card-title justify-center text-base">Take Assessment</h3>
+            <p class="text-sm text-base-content/50">Start a new AI readiness check</p>
+          </div>
+        </a>
+        <a href="pricing.html" class="card bg-base-200 shadow hover:shadow-lg transition-shadow">
+          <div class="card-body text-center">
+            <div class="text-3xl mb-2">⭐</div>
+            <h3 class="card-title justify-center text-base">Upgrade Plan</h3>
+            <p class="text-sm text-base-content/50">Unlock unlimited assessments</p>
+          </div>
+        </a>
+        <div class="card bg-base-200 shadow hover:shadow-lg transition-shadow cursor-pointer" onclick="copyProfileLink()">
+          <div class="card-body text-center">
+            <div class="text-3xl mb-2">🔗</div>
+            <h3 class="card-title justify-center text-base">Share Profile</h3>
+            <p class="text-sm text-base-content/50">Copy your public profile link</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="toast" class="toast toast-top toast-end hidden">
+    <div class="alert alert-success"><span id="toast-msg">Done!</span></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/theme.js"></script>
+  <script>
+
+    let currentUserId = null
+
+    function showToast(msg) {
+      document.getElementById('toast-msg').textContent = msg || 'Done!'
+      const t = document.getElementById('toast')
+      t.classList.remove('hidden')
+      setTimeout(() => t.classList.add('hidden'), 2500)
+    }
+
+    function copyProfileLink() {
+      navigator.clipboard.writeText(window.location.origin + '/certificate.html?user=' + currentUserId)
+      showToast('Profile link copied!')
+    }
+
+    async function handleSignOut() {
+      await db.auth.signOut()
+      window.location.href = 'login.html'
+    }
+
+    async function init() {
+      // ── SUPABASE: get current session ──────
+      const session = await getSession()
+
+      document.getElementById('loading').classList.add('hidden')
+
+      if (!session) {
+        document.getElementById('guest-view').classList.remove('hidden')
+        return
+      }
+
+      currentUserId = session.user.id
+
+      // ── SUPABASE: fetch user profile ───────
+      const { data: profile } = await db
+        .from('profiles')
+        .select('*')
+        .eq('id', session.user.id)
+        .single()
+
+      if (profile) {
+        const name = profile.full_name || 'there'
+        const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+        document.getElementById('greeting-name').textContent = name.split(' ')[0]
+        document.getElementById('nav-name').textContent = name
+        document.getElementById('avatar-initials').textContent = initials
+
+        if (profile.ai_trust_score > 0) {
+          document.getElementById('trust-score').textContent = profile.ai_trust_score + '%'
+          document.getElementById('score-label').textContent = 'Your current rating'
+        }
+      }
+
+      // ── SUPABASE: fetch assessment sessions ─
+      const { data: sessions } = await db
+        .from('assessment_sessions')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .order('created_at', { ascending: false })
+
+      const count = sessions?.length || 0
+      document.getElementById('assessment-count').textContent = count
+
+      if (count === 0) {
+        document.getElementById('cta-start').classList.remove('hidden')
+      } else {
+        document.getElementById('recent-section').classList.remove('hidden')
+        const tbody = document.getElementById('assessments-table')
+
+        sessions.forEach(s => {
+          const date = new Date(s.created_at).toLocaleDateString()
+          const statusBadge = s.status === 'completed'
+            ? '<div class="badge badge-success badge-sm">Completed</div>'
+            : '<div class="badge badge-warning badge-sm">In Progress</div>'
+          const score = s.raw_score > 0 ? s.raw_score + '%' : '—'
+          const actions = s.status === 'completed'
+            ? `<a href="report.html?session=${s.id}" class="btn btn-xs btn-primary">View Report</a>`
+            : `<a href="assessment.html" class="btn btn-xs btn-outline">Continue</a>`
+
+          tbody.innerHTML += `
+            <tr>
+              <td class="text-sm">${date}</td>
+              <td>${statusBadge}</td>
+              <td class="font-bold text-primary">${score}</td>
+              <td>${actions}</td>
+            </tr>
+          `
+        })
+      }
+
+      // ── SUPABASE: fetch certificates ───────
+      const { data: certs } = await db
+        .from('certificates')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .order('issued_at', { ascending: false })
+
+      const certCount = certs?.length || 0
+      document.getElementById('cert-count').textContent = certCount
+
+      if (certCount > 0) {
+        document.getElementById('certs-section').classList.remove('hidden')
+        const grid = document.getElementById('certs-grid')
+
+        certs.forEach(cert => {
+          const date = new Date(cert.issued_at).toLocaleDateString()
+          grid.innerHTML += `
+            <div class="card bg-base-200 shadow">
+              <div class="card-body">
+                <div class="badge badge-primary badge-outline mb-2">Certificate</div>
+                <div class="text-2xl font-bold text-primary">${cert.readiness_score}%</div>
+                <p class="text-xs text-base-content/40 font-mono">${cert.cert_number}</p>
+                <p class="text-xs text-base-content/50">${date}</p>
+                <div class="card-actions mt-3">
+                  <a href="certificate.html?token=${cert.verify_token}" class="btn btn-xs btn-primary">View</a>
+                  <button onclick="navigator.clipboard.writeText('${window.location.origin}/certificate.html?token=${cert.verify_token}');showToast('Link copied!')" class="btn btn-xs btn-outline">Copy Link</button>
+                </div>
+              </div>
+            </div>
+          `
+        })
+      }
+
+      document.getElementById('content').classList.remove('hidden')
+    }
+
+    init()
+  </script>
+</body>
+</html>

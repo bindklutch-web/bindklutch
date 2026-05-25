@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html data-theme="dark" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up — ThinkPrint</title>
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-base-200 min-h-screen flex items-center justify-center px-4">
+
+  <button id="theme-toggle" onclick="toggleTheme()" class="btn btn-ghost btn-sm btn-circle fixed top-4 right-4">☀️</button>
+
+  <div class="card w-full max-w-md bg-base-100 shadow-xl">
+    <div class="card-body">
+
+      <div class="text-center mb-6">
+        <a href="index.html" class="text-2xl font-bold">Think<span class="text-primary">Print</span></a>
+        <p class="text-base-content/50 text-sm mt-1">AI Readiness Verification Platform</p>
+      </div>
+
+      <h2 class="text-xl font-bold text-center mb-1">Create your account</h2>
+      <p class="text-center text-base-content/50 text-sm mb-6">Start your AI Readiness Assessment free</p>
+
+      <div id="error-alert" class="alert alert-error hidden mb-4">
+        <span id="error-message"></span>
+      </div>
+
+      <div id="success-alert" class="alert alert-success hidden mb-4">
+        <span id="success-message"></span>
+      </div>
+
+      <div class="form-control mb-3">
+        <label class="label"><span class="label-text font-medium">Full Name</span></label>
+        <input type="text" id="full-name" placeholder="Your full name" class="input input-bordered w-full">
+      </div>
+
+      <div class="form-control mb-3">
+        <label class="label"><span class="label-text font-medium">Work Email</span></label>
+        <input type="email" id="email" placeholder="you@company.com" class="input input-bordered w-full">
+      </div>
+
+      <div class="form-control mb-3">
+        <label class="label"><span class="label-text font-medium">Password</span></label>
+        <input type="password" id="password" placeholder="Minimum 8 characters" class="input input-bordered w-full">
+      </div>
+
+      <div class="form-control mb-6">
+        <label class="label"><span class="label-text font-medium">I am signing up as</span></label>
+        <select id="role" class="select select-bordered w-full">
+          <option value="individual">Individual Professional</option>
+          <option value="admin">Company / HR Manager</option>
+        </select>
+      </div>
+
+      <button id="signup-btn" onclick="handleSignup()" class="btn btn-primary w-full">
+        Create Account
+      </button>
+
+      <div class="divider text-xs">Already have an account?</div>
+      <a href="login.html" class="btn btn-outline w-full">Sign In</a>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/theme.js"></script>
+  <script>
+    async function handleSignup() {
+      const fullName = document.getElementById('full-name').value.trim()
+      const email    = document.getElementById('email').value.trim()
+      const password = document.getElementById('password').value
+      const role     = document.getElementById('role').value
+      const btn      = document.getElementById('signup-btn')
+      const errorAlert   = document.getElementById('error-alert')
+      const successAlert = document.getElementById('success-alert')
+
+      errorAlert.classList.add('hidden')
+      successAlert.classList.add('hidden')
+
+      if (!fullName || !email || !password) {
+        document.getElementById('error-message').textContent = 'Please fill in all fields.'
+        errorAlert.classList.remove('hidden')
+        return
+      }
+      if (password.length < 8) {
+        document.getElementById('error-message').textContent = 'Password must be at least 8 characters.'
+        errorAlert.classList.remove('hidden')
+        return
+      }
+
+      btn.disabled = true
+      btn.innerHTML = '<span class="loading loading-spinner loading-sm"></span> Creating account...'
+
+      const { data, error } = await db.auth.signUp({
+        email, password,
+        options: { data: { full_name: fullName, role } }
+      })
+
+      if (error) {
+        document.getElementById('error-message').textContent = error.message
+        errorAlert.classList.remove('hidden')
+        btn.disabled = false
+        btn.innerHTML = 'Create Account'
+        return
+      }
+
+      if (data.user) {
+        await db.from('profiles').update({ role }).eq('id', data.user.id)
+      }
+
+      document.getElementById('success-message').textContent = 'Account created! Redirecting...'
+      successAlert.classList.remove('hidden')
+      btn.innerHTML = 'Account Created ✓'
+
+      setTimeout(() => {
+        window.location.href = role === 'admin' ? 'org-dashboard.html' : 'dashboard.html'
+      }, 1500)
+    }
+
+    document.addEventListener('keydown', e => { if (e.key === 'Enter') handleSignup() })
+  </script>
+</body>
+</html>

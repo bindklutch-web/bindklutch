@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html data-theme="dark" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pricing — ThinkPrint</title>
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-base-100 min-h-screen">
+
+  <!-- NAVBAR -->
+  <div class="navbar bg-base-100 border-b border-base-200 px-6 sticky top-0 z-50">
+    <div class="navbar-start">
+      <a href="index.html" class="text-xl font-bold">Think<span class="text-primary">Print</span></a>
+    </div>
+    <div class="navbar-end gap-2">
+      <button id="theme-toggle" onclick="toggleTheme()" class="btn btn-ghost btn-sm btn-circle">☀️</button>
+      <a href="login.html" class="btn btn-ghost btn-sm">Sign In</a>
+      <a href="signup.html" class="btn btn-primary btn-sm">Start Free</a>
+    </div>
+  </div>
+
+  <div class="container mx-auto px-6 py-16 max-w-5xl">
+
+    <!-- Header -->
+    <div class="text-center mb-12">
+      <div class="badge badge-primary badge-outline mb-4">Pricing</div>
+      <h1 class="text-4xl font-bold mb-4">Simple, honest pricing</h1>
+      <p class="text-base-content/50 max-w-lg mx-auto">
+        Start free. Upgrade when you need more. No hidden fees, no long-term contracts.
+      </p>
+
+      <!-- Toggle monthly/yearly -->
+      <div class="flex items-center justify-center gap-3 mt-8">
+        <span class="text-sm" id="monthly-label">Monthly</span>
+        <input type="checkbox" id="billing-toggle" class="toggle toggle-primary" onchange="toggleBilling()">
+        <span class="text-sm" id="yearly-label">Yearly <div class="badge badge-success badge-sm">Save 20%</div></span>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div id="loading" class="flex justify-center items-center min-h-48">
+      <span class="loading loading-spinner loading-lg text-primary"></span>
+    </div>
+
+    <!-- Plans -->
+    <div id="plans-grid" class="hidden grid md:grid-cols-3 gap-6 mb-16">
+      <!-- Injected by JS -->
+    </div>
+
+    <!-- FAQ -->
+    <div class="max-w-2xl mx-auto">
+      <h2 class="text-2xl font-bold text-center mb-8">Frequently Asked Questions</h2>
+      <div class="join join-vertical w-full">
+
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="faq" checked>
+          <div class="collapse-title font-semibold">Is the free plan really free forever?</div>
+          <div class="collapse-content text-base-content/60 text-sm">
+            Yes. The free plan includes 1 full AI readiness assessment and a verifiable certificate. No credit card required.
+          </div>
+        </div>
+
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="faq">
+          <div class="collapse-title font-semibold">Can I upgrade or downgrade anytime?</div>
+          <div class="collapse-content text-base-content/60 text-sm">
+            Yes. You can upgrade, downgrade, or cancel at any time. No lock-in periods.
+          </div>
+        </div>
+
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="faq">
+          <div class="collapse-title font-semibold">What happens to my certificates if I downgrade?</div>
+          <div class="collapse-content text-base-content/60 text-sm">
+            All certificates you've earned remain valid and publicly verifiable forever. They are yours to keep.
+          </div>
+        </div>
+
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="faq">
+          <div class="collapse-title font-semibold">Do you offer discounts for startups or NGOs?</div>
+          <div class="collapse-content text-base-content/60 text-sm">
+            Yes. Contact us at hello@thinkprint.io and we'll work something out.
+          </div>
+        </div>
+
+        <div class="collapse collapse-arrow join-item border border-base-300">
+          <input type="radio" name="faq">
+          <div class="collapse-title font-semibold">Is there an enterprise plan?</div>
+          <div class="collapse-content text-base-content/60 text-sm">
+            Yes. For companies with 25+ employees, custom pricing, SSO, compliance reporting, and a dedicated account manager. Contact us.
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="text-center mt-16">
+      <h2 class="text-2xl font-bold mb-4">Still not sure?</h2>
+      <p class="text-base-content/50 mb-6">Take a free assessment and see the quality of the report before you commit to anything.</p>
+      <a href="assessment.html" class="btn btn-primary btn-lg">Try It Free →</a>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer footer-center bg-base-200 text-base-content border-t border-base-300 p-8 mt-10">
+    <nav>
+      <div class="grid grid-flow-col gap-6 text-sm">
+        <a href="index.html" class="link link-hover">Home</a>
+        <a href="assessment.html" class="link link-hover">Take Assessment</a>
+        <a href="signup.html" class="link link-hover">Sign Up</a>
+      </div>
+    </nav>
+    <aside>
+      <p class="text-xs text-base-content/30">© 2026 ThinkPrint. All rights reserved.</p>
+    </aside>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-client.js"></script>
+  <script>
+    function toggleTheme() {
+      const html = document.documentElement
+      const next = html.getAttribute('data-theme') === 'dark' ? 'corporate' : 'dark'
+      html.setAttribute('data-theme', next)
+      localStorage.setItem('theme', next)
+      document.getElementById('theme-toggle').innerHTML = next === 'dark' ? '☀️' : '🌙'
+    }
+    const saved = localStorage.getItem('theme') || 'dark'
+    document.documentElement.setAttribute('data-theme', saved)
+    document.getElementById('theme-toggle').innerHTML = saved === 'dark' ? '☀️' : '🌙'
+
+    let isYearly = false
+    let plans = []
+
+    function toggleBilling() {
+      isYearly = document.getElementById('billing-toggle').checked
+      renderPlans()
+    }
+
+    function renderPlans() {
+      const grid = document.getElementById('plans-grid')
+      grid.innerHTML = ''
+
+      plans.forEach(plan => {
+        const price = isYearly ? plan.price_yearly : plan.price_monthly
+        const period = isYearly ? '/year' : '/month'
+        const features = typeof plan.features === 'string'
+          ? JSON.parse(plan.features) : plan.features
+
+        const featuresHTML = features.map(f =>
+          `<li class="flex gap-2 text-sm"><span class="text-primary">✓</span>${f}</li>`
+        ).join('')
+
+        const popular = plan.is_popular
+          ? '<div class="badge badge-primary absolute -top-3 left-1/2 -translate-x-1/2">Most Popular</div>'
+          : ''
+
+        const cardClass = plan.is_popular
+          ? 'card bg-primary text-primary-content shadow-xl relative'
+          : 'card bg-base-200 shadow relative'
+
+        const btnClass = plan.is_popular
+          ? 'btn btn-neutral w-full mt-6'
+          : 'btn btn-primary w-full mt-6'
+
+        const priceColor = plan.is_popular ? '' : 'text-primary'
+
+        grid.innerHTML += `
+          <div class="${cardClass}">
+            ${popular}
+            <div class="card-body">
+              <h2 class="card-title text-xl">${plan.name}</h2>
+              <div class="my-4">
+                <span class="text-4xl font-bold ${priceColor}">
+                  ${price === 0 ? 'Free' : '$' + price}
+                </span>
+                ${price > 0 ? `<span class="text-sm opacity-60">${period}</span>` : ''}
+              </div>
+              <ul class="space-y-2">
+                ${featuresHTML}
+              </ul>
+              <a href="signup.html" class="${btnClass}">
+                ${price === 0 ? 'Get Started Free' : 'Get Started'}
+              </a>
+            </div>
+          </div>
+        `
+      })
+    }
+
+    async function init() {
+      // Fetch plans from Supabase
+      const { data, error } = await db
+        .from('plans')
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true })
+
+      document.getElementById('loading').classList.add('hidden')
+      document.getElementById('plans-grid').classList.remove('hidden')
+
+      if (error || !data?.length) {
+        document.getElementById('plans-grid').innerHTML = `
+          <div class="col-span-3">
+            <div class="alert alert-error">Could not load plans. Please refresh.</div>
+          </div>
+        `
+        return
+      }
+
+      plans = data
+      renderPlans()
+    }
+
+    init()
+  </script>
+
+</body>
+</html>

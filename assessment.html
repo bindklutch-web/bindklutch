@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html data-theme="dark" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Assessment — ThinkPrint</title>
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-base-100 min-h-screen">
+
+  <!-- NAVBAR -->
+  <div class="navbar bg-base-100 border-b border-base-200 px-6">
+    <div class="navbar-start">
+      <a href="index.html" class="text-xl font-bold">Think<span class="text-primary">Print</span></a>
+    </div>
+    <div class="navbar-center">
+      <div class="flex flex-col items-center gap-1">
+        <progress id="progress-bar" class="progress progress-primary w-48" value="0" max="100"></progress>
+        <span id="progress-text" class="text-xs text-base-content/50">Scenario 1 of 8</span>
+      </div>
+    </div>
+    <div class="navbar-end gap-3">
+      <div class="badge badge-neutral gap-1">⏱ <span id="timer">0:00</span></div>
+      <button id="theme-toggle" onclick="toggleTheme()" class="btn btn-ghost btn-sm btn-circle">☀️</button>
+    </div>
+  </div>
+
+  <div class="container mx-auto px-6 py-10 max-w-2xl">
+
+    <!-- LOADING -->
+    <div id="screen-loading" class="flex flex-col items-center justify-center min-h-96 gap-4">
+      <span class="loading loading-spinner loading-lg text-primary"></span>
+      <p class="text-base-content/50">Loading your assessment...</p>
+    </div>
+
+    <!-- SCENARIO -->
+    <div id="screen-scenario" class="hidden">
+      <div class="mb-2">
+        <div class="badge badge-primary badge-outline" id="scenario-domain">Data Safety</div>
+      </div>
+      <h1 class="text-3xl font-bold mb-4" id="scenario-title">Loading...</h1>
+      <div class="card bg-base-200 shadow mb-6">
+        <div class="card-body">
+          <p class="text-base-content/70 leading-relaxed" id="scenario-situation"></p>
+        </div>
+      </div>
+      <p class="font-semibold text-lg mb-4" id="scenario-question">What do you do?</p>
+      <div id="choices-grid" class="flex flex-col gap-3"></div>
+    </div>
+
+    <!-- JUSTIFICATION -->
+    <div id="screen-justification" class="hidden">
+      <div class="alert alert-info mb-6">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <span id="choice-selected-display" class="text-sm">Your choice: ...</span>
+      </div>
+
+      <h2 class="text-2xl font-bold mb-2">Why did you make this choice?</h2>
+      <p class="text-base-content/50 text-sm mb-4">Explain your reasoning. This is the most important part.</p>
+
+      <div class="form-control mb-2">
+        <textarea
+          id="justification-text"
+          class="textarea textarea-bordered w-full h-36"
+          placeholder="Walk through your thinking. What factors did you consider? What risks or benefits influenced your decision?"
+        ></textarea>
+      </div>
+
+      <div class="flex justify-between items-center mb-6">
+        <span id="char-count" class="text-sm text-base-content/40">0 / 100 minimum</span>
+        <span class="text-xs text-base-content/30">More detail = more accurate diagnosis</span>
+      </div>
+
+      <div class="card bg-base-200 shadow mb-6">
+        <div class="card-body">
+          <h3 class="card-title text-base mb-3">How confident are you in this choice?</h3>
+          <div class="flex gap-2">
+            <button class="btn btn-outline btn-sm flex-1 flex-col h-14 conf-btn" data-value="1"><span class="font-bold">1</span><span class="text-xs font-normal">Not sure</span></button>
+            <button class="btn btn-outline btn-sm flex-1 flex-col h-14 conf-btn" data-value="2"><span class="font-bold">2</span><span class="text-xs font-normal">Slightly</span></button>
+            <button class="btn btn-outline btn-sm flex-1 flex-col h-14 conf-btn" data-value="3"><span class="font-bold">3</span><span class="text-xs font-normal">Fairly</span></button>
+            <button class="btn btn-outline btn-sm flex-1 flex-col h-14 conf-btn" data-value="4"><span class="font-bold">4</span><span class="text-xs font-normal">Very sure</span></button>
+            <button class="btn btn-outline btn-sm flex-1 flex-col h-14 conf-btn" data-value="5"><span class="font-bold">5</span><span class="text-xs font-normal">Certain</span></button>
+          </div>
+        </div>
+      </div>
+
+      <button id="next-btn" class="btn btn-primary w-full btn-lg" disabled onclick="handleNext()">
+        Next Scenario →
+      </button>
+    </div>
+
+    <!-- COMPLETE -->
+    <div id="screen-complete" class="hidden">
+      <div class="flex flex-col items-center justify-center min-h-96 gap-6 text-center">
+        <div class="text-6xl">✓</div>
+        <h2 class="text-3xl font-bold">Assessment Complete</h2>
+        <p class="text-base-content/50">Analyzing your responses...</p>
+        <span class="loading loading-dots loading-lg text-primary"></span>
+        <p class="text-xs text-base-content/30">Redirecting to your report...</p>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/theme.js"></script>
+  <script>
+
+    // ── State ─────────────────────────────────
+    let SCENARIOS = []
+    let TOTAL = 0
+    let currentIndex = 0
+    let currentSession = null
+    let currentUser = null
+    let selectedChoice = null
+    let selectedConfidence = null
+    let scenarioStartTime = null
+    let timerSeconds = 0
+    let timerInterval = null
+    let guestResponses = []
+
+    // ── Screens ───────────────────────────────
+    function showScreen(name) {
+      ['loading','scenario','justification','complete'].forEach(s => {
+        document.getElementById(`screen-${s}`).classList.add('hidden')
+      })
+      document.getElementById(`screen-${name}`).classList.remove('hidden')
+    }
+
+    // ── Timer ─────────────────────────────────
+    function startTimer() {
+      timerInterval = setInterval(() => {
+        timerSeconds++
+        const m = Math.floor(timerSeconds / 60)
+        const s = timerSeconds % 60
+        document.getElementById('timer').textContent = `${m}:${s.toString().padStart(2,'0')}`
+      }, 1000)
+    }
+
+    // ── Load scenario ─────────────────────────
+    function loadScenario(index) {
+      const s = SCENARIOS[index]
+      selectedChoice = null
+      selectedConfidence = null
+      scenarioStartTime = Date.now()
+
+      document.getElementById('progress-bar').value = (index / TOTAL) * 100
+      document.getElementById('progress-text').textContent = `Scenario ${index + 1} of ${TOTAL}`
+      document.getElementById('scenario-domain').textContent = s.domain
+      document.getElementById('scenario-title').textContent = s.title
+      document.getElementById('scenario-situation').textContent = s.situation
+      document.getElementById('scenario-question').textContent = s.question
+
+      const choices = typeof s.choices === 'string' ? JSON.parse(s.choices) : s.choices
+      const grid = document.getElementById('choices-grid')
+      grid.innerHTML = ''
+
+      choices.forEach(choice => {
+        const letters = ['A','B','C','D']
+        const btn = document.createElement('button')
+        btn.className = 'btn btn-outline w-full justify-start gap-4 h-auto py-4 text-left'
+        btn.innerHTML = `
+          <div class="badge badge-primary badge-outline w-8 h-8 text-sm font-bold flex-shrink-0">${letters[choice.index]}</div>
+          <span class="flex-1 text-sm font-normal normal-case">${choice.text}</span>
+        `
+        btn.addEventListener('click', () => selectChoice(choice, btn))
+        grid.appendChild(btn)
+      })
+
+      document.getElementById('justification-text').value = ''
+      document.getElementById('char-count').textContent = '0 / 100 minimum'
+      document.getElementById('char-count').className = 'text-sm text-base-content/40'
+      document.getElementById('next-btn').disabled = true
+      document.getElementById('next-btn').textContent =
+        index === TOTAL - 1 ? 'Complete Assessment ✓' : 'Next Scenario →'
+
+      document.querySelectorAll('.conf-btn').forEach(b => {
+        b.classList.remove('btn-primary')
+        b.classList.add('btn-outline')
+      })
+      selectedConfidence = null
+
+      showScreen('scenario')
+    }
+
+    // ── Select choice ─────────────────────────
+    function selectChoice(choice, btn) {
+      document.querySelectorAll('#choices-grid button').forEach(b => {
+        b.classList.remove('btn-primary')
+        b.classList.add('btn-outline')
+      })
+      btn.classList.remove('btn-outline')
+      btn.classList.add('btn-primary')
+      selectedChoice = choice
+
+      setTimeout(() => {
+        const letters = ['A','B','C','D']
+        document.getElementById('choice-selected-display').textContent =
+          `Your choice: ${letters[choice.index]} — ${choice.text}`
+        showScreen('justification')
+      }, 350)
+    }
+
+    // ── Justification ─────────────────────────
+    document.getElementById('justification-text').addEventListener('input', function() {
+      const len = this.value.length
+      const el = document.getElementById('char-count')
+      if (len < 100) {
+        el.textContent = `${len} / 100 minimum`
+        el.className = 'text-sm text-base-content/40'
+      } else {
+        el.textContent = `${len} characters ✓`
+        el.className = 'text-sm text-success'
+      }
+      validateNext()
+    })
+
+    // ── Confidence ────────────────────────────
+    document.querySelectorAll('.conf-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.conf-btn').forEach(b => {
+          b.classList.remove('btn-primary')
+          b.classList.add('btn-outline')
+        })
+        this.classList.remove('btn-outline')
+        this.classList.add('btn-primary')
+        selectedConfidence = parseInt(this.dataset.value)
+        validateNext()
+      })
+    })
+
+    function validateNext() {
+      const text = document.getElementById('justification-text').value
+      document.getElementById('next-btn').disabled = !(text.length >= 100 && selectedConfidence !== null)
+    }
+
+    // ── Handle next ───────────────────────────
+    async function handleNext() {
+      await saveResponse()
+      if (currentIndex < TOTAL - 1) {
+        currentIndex++
+        loadScenario(currentIndex)
+      } else {
+        await completeAssessment()
+      }
+    }
+
+    // ── Save response ─────────────────────────
+    async function saveResponse() {
+  const justification = document.getElementById('justification-text').value
+  const timeTaken = Math.round((Date.now() - scenarioStartTime) / 1000)
+  const scenario = SCENARIOS[currentIndex]
+
+  // Always save to guest array
+  guestResponses.push({
+    session_id: 'guest',
+    user_id: 'guest',
+    scenario_index: currentIndex,
+    scenario_title: scenario.title,
+    choice_made: selectedChoice.text,
+    choice_index: selectedChoice.index,
+    justification,
+    confidence_level: selectedConfidence,
+    time_taken_secs: timeTaken
+  })
+
+  // Also save to Supabase if logged in
+  if (currentUser && currentSession) {
+    await db.from('step_responses').insert({
+      session_id: currentSession.id,
+      user_id: currentUser.id,
+      scenario_index: currentIndex,
+      scenario_title: scenario.title,
+      choice_made: selectedChoice.text,
+      choice_index: selectedChoice.index,
+      justification,
+      confidence_level: selectedConfidence,
+      time_taken_secs: timeTaken
+    })
+
+    await db.from('assessment_sessions')
+      .update({ completed_scenarios: currentIndex + 1 })
+      .eq('id', currentSession.id)
+  }
+}
+
+    // ── Complete ──────────────────────────────
+async function completeAssessment() {
+  showScreen('complete')
+  clearInterval(timerInterval)
+
+  if (currentUser && currentSession) {
+    await db.from('assessment_sessions').update({
+      status: 'completed',
+      completed_at: new Date().toISOString(),
+      completed_scenarios: TOTAL
+    }).eq('id', currentSession.id)
+
+    setTimeout(() => {
+      window.location.href = `report.html?session=${currentSession.id}`
+    }, 2000)
+
+  } else {
+    // Guest mode — store responses in sessionStorage
+    // and go directly to report
+    sessionStorage.setItem('guest_responses', JSON.stringify(guestResponses))
+    setTimeout(() => {
+      window.location.href = `report.html?guest=true`
+    }, 2000)
+  }
+}
+
+    // ── Init ──────────────────────────────────
+    async function init() {
+      showScreen('loading')
+
+      // Check session — no redirect, guest allowed
+      const session = await getSession()
+      currentUser = session?.user || null
+
+      // Fetch scenarios from Supabase
+      const { data: scenarios, error } = await db
+        .from('scenarios')
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true })
+
+      if (error || !scenarios?.length) {
+        document.getElementById('screen-loading').innerHTML = `
+          <div class="alert alert-error max-w-sm">
+            <span>Could not load scenarios. Please try again.</span>
+          </div>
+        `
+        return
+      }
+
+      SCENARIOS = scenarios
+      TOTAL = scenarios.length
+
+      // Create session only if logged in
+      if (currentUser) {
+        const { data: sessionData, error: sessionError } = await db
+          .from('assessment_sessions')
+          .insert({
+            user_id: currentUser.id,
+            total_scenarios: TOTAL,
+            status: 'in_progress'
+          })
+          .select()
+          .single()
+
+        if (!sessionError) currentSession = sessionData
+      }
+
+      startTimer()
+      loadScenario(0)
+    }
+
+    init()
+  </script>
+</body>
+</html>
