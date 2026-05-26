@@ -302,7 +302,7 @@ async function completeAssessment() {
     }).eq('id', currentSession.id)
 
     setTimeout(() => {
-      window.location.href = `report.html?session=${currentSession.id}`
+      window.location.href = `review.html?session=${currentSession.id}`
     }, 2000)
 
   } else {
@@ -310,7 +310,7 @@ async function completeAssessment() {
     // and go directly to report
     sessionStorage.setItem('guest_responses', JSON.stringify(guestResponses))
     setTimeout(() => {
-      window.location.href = `report.html?guest=true`
+      window.location.href = `review.html?guest=true`
     }, 2000)
   }
 }
