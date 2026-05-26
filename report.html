@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html data-theme="dark" lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +7,6 @@
   <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-
 <body class="bg-base-100 min-h-screen">
 
   <div class="navbar bg-base-100 border-b border-base-200 px-6 sticky top-0 z-50">
@@ -23,14 +21,12 @@
 
   <div class="container mx-auto px-6 py-10 max-w-3xl">
 
-    <!-- Loading -->
     <div id="loading" class="flex flex-col items-center justify-center min-h-96 gap-4">
       <span class="loading loading-spinner loading-lg text-primary"></span>
       <p class="text-base-content/50">Generating your AI diagnosis...</p>
       <p class="text-xs text-base-content/30">This may take up to 15 seconds</p>
     </div>
 
-    <!-- No session -->
     <div id="no-session" class="hidden text-center py-20">
       <div class="alert alert-warning max-w-sm mx-auto mb-6">
         <span>No session found. Please complete an assessment first.</span>
@@ -38,7 +34,6 @@
       <a href="assessment.html" class="btn btn-primary">Take Assessment</a>
     </div>
 
-    <!-- Error -->
     <div id="error-screen" class="hidden text-center py-20">
       <div class="alert alert-error max-w-sm mx-auto mb-6">
         <span id="error-msg">Something went wrong. Please try again.</span>
@@ -46,18 +41,16 @@
       <a href="assessment.html" class="btn btn-primary">Retake Assessment</a>
     </div>
 
-    <!-- Report -->
     <div id="report-content" class="hidden">
 
-      <!-- Header -->
       <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
         <div>
           <div class="badge badge-primary badge-outline mb-2">ThinkPrint Report</div>
           <h1 class="text-3xl font-bold" id="report-name">Your Report</h1>
           <p class="text-base-content/50 text-sm" id="report-date"></p>
         </div>
-        <div class="radial-progress text-primary text-2xl font-bold" id="score-ring" style="--value:0; --size:6rem;"
-          role="progressbar">
+        <div class="radial-progress text-primary text-2xl font-bold"
+             id="score-ring" style="--value:0; --size:6rem;" role="progressbar">
           <span id="score-display">0</span>
         </div>
       </div>
@@ -69,7 +62,6 @@
         <span class="text-base-content/50 text-sm" id="risk-profile"></span>
       </div>
 
-      <!-- Dimensions -->
       <div class="card bg-base-200 shadow mb-6">
         <div class="card-body">
           <h2 class="card-title mb-4">Judgment Dimensions</h2>
@@ -77,7 +69,6 @@
         </div>
       </div>
 
-      <!-- Strengths & Blind Spots -->
       <div class="grid sm:grid-cols-2 gap-6 mb-6">
         <div class="card bg-base-200 shadow">
           <div class="card-body">
@@ -93,7 +84,6 @@
         </div>
       </div>
 
-      <!-- Recommendation -->
       <div class="card bg-base-200 shadow mb-6">
         <div class="card-body">
           <h2 class="card-title mb-3">Professional Recommendation</h2>
@@ -101,7 +91,6 @@
         </div>
       </div>
 
-      <!-- Breakdown -->
       <div class="card bg-base-200 shadow mb-8">
         <div class="card-body">
           <h2 class="card-title mb-4">Scenario Breakdown</h2>
@@ -121,7 +110,6 @@
         </div>
       </div>
 
-      <!-- Actions -->
       <div class="flex flex-wrap gap-3 justify-center">
         <a href="certificate.html" id="cert-link" class="btn btn-primary hidden">View Certificate</a>
         <button onclick="window.print()" class="btn btn-outline">Download PDF</button>
@@ -138,13 +126,11 @@
   <script src="js/theme.js"></script>
   <script>
 
-    // ── Render report UI ──────────────────────
     function renderReport(report, name, responses) {
       document.getElementById('report-name').textContent = name || 'Your Report'
       document.getElementById('report-date').textContent =
         new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
 
-      // Score
       const score = report.readiness_score
       const ring = document.getElementById('score-ring')
       ring.style.setProperty('--value', score)
@@ -155,7 +141,6 @@
       document.getElementById('recommendation-text').textContent =
         report.professional_recommendation || ''
 
-      // Dimensions
       const dims = report.dimensions || {}
       const dimLabels = {
         data_safety: 'Data Safety',
@@ -178,25 +163,22 @@
         `
       })
 
-      // Strengths
       const sl = document.getElementById('strengths-list')
-        ; (report.strengths || []).forEach(s => {
-          sl.innerHTML += `<li class="flex gap-2"><span class="text-success">✓</span>${s}</li>`
-        })
+      ;(report.strengths || []).forEach(s => {
+        sl.innerHTML += `<li class="flex gap-2"><span class="text-success">✓</span>${s}</li>`
+      })
 
-      // Blind spots
       const bl = document.getElementById('blindspots-list')
-        ; (report.blind_spots || []).forEach(b => {
-          bl.innerHTML += `<li class="flex gap-2"><span class="text-warning">△</span>${b}</li>`
-        })
+      ;(report.blind_spots || []).forEach(b => {
+        bl.innerHTML += `<li class="flex gap-2"><span class="text-warning">△</span>${b}</li>`
+      })
 
-      // Breakdown table
       const tbody = document.getElementById('breakdown-table')
-        ; (responses || []).forEach(r => {
-          const time = r.time_taken_secs < 60
-            ? r.time_taken_secs + 's'
-            : Math.floor(r.time_taken_secs / 60) + 'm ' + (r.time_taken_secs % 60) + 's'
-          tbody.innerHTML += `
+      ;(responses || []).forEach(r => {
+        const time = r.time_taken_secs < 60
+          ? r.time_taken_secs + 's'
+          : Math.floor(r.time_taken_secs / 60) + 'm ' + (r.time_taken_secs % 60) + 's'
+        tbody.innerHTML += `
           <tr>
             <td class="text-base-content/40">${r.scenario_index + 1}</td>
             <td class="text-sm font-medium">${r.scenario_title}</td>
@@ -204,13 +186,12 @@
             <td class="text-xs text-base-content/50">${time}</td>
           </tr>
         `
-        })
+      })
 
       document.getElementById('loading').classList.add('hidden')
       document.getElementById('report-content').classList.remove('hidden')
     }
 
-    // ── Generate AI report via Claude ─────────
     async function generateAIReport(responses) {
       const summary = responses.map((r, i) =>
         `Scenario ${i + 1} (${r.scenario_title}):
@@ -244,16 +225,26 @@ Return ONLY valid JSON with this exact structure (no markdown, no code blocks):
   "recruiter_summary": "<1 paragraph for hiring manager>"
 }`
 
-const res = await fetch('/.netlify/functions/analyze', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    messages: [{ role: 'user', content: prompt }]
-  })
-})
+      const res = await fetch('/.netlify/functions/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: [{ role: 'user', content: prompt }]
+        })
+      })
+
+      if (!res.ok) {
+        const errText = await res.text()
+        console.error('Function error:', res.status, errText)
+        throw new Error('Function returned ' + res.status)
+      }
 
       const data = await res.json()
+      console.log('Claude response:', data)
+
       const text = data.content?.[0]?.text || ''
+      if (!text) throw new Error('Empty response from Claude')
+
       try {
         return JSON.parse(text)
       } catch {
@@ -261,70 +252,67 @@ const res = await fetch('/.netlify/functions/analyze', {
       }
     }
 
-    // ── Main init ─────────────────────────────
     async function init() {
-const params = new URLSearchParams(window.location.search)
-const sessionId = params.get('session')
-const isGuest = params.get('guest') === 'true'
+      const params = new URLSearchParams(window.location.search)
+      const sessionId = params.get('session')
+      const isGuest = params.get('guest') === 'true'
 
-// Guest mode — use sessionStorage responses
-if (isGuest) {
-  const stored = sessionStorage.getItem('guest_responses')
-  if (!stored) {
-    document.getElementById('loading').classList.add('hidden')
-    document.getElementById('no-session').classList.remove('hidden')
-    return
-  }
-  const responses = JSON.parse(stored)
-  try {
-    const aiResult = await generateAIReport(responses)
-    renderReport(aiResult, 'Guest User', responses)
-  } catch(e) {
-    document.getElementById('loading').innerHTML = `
-      <div class="alert alert-error max-w-sm mx-auto">
-        <span>AI analysis failed. Please try again.</span>
-      </div>
-    `
-  }
-  return
-}
+      // Guest mode
+      if (isGuest) {
+        const stored = sessionStorage.getItem('guest_responses')
+        if (!stored) {
+          document.getElementById('loading').classList.add('hidden')
+          document.getElementById('no-session').classList.remove('hidden')
+          return
+        }
+        try {
+          const responses = JSON.parse(stored)
+          const aiResult = await generateAIReport(responses)
+          renderReport(aiResult, 'Guest User', responses)
+        } catch(e) {
+          console.error('Guest report error:', e)
+          document.getElementById('loading').classList.add('hidden')
+          document.getElementById('error-screen').classList.remove('hidden')
+          document.getElementById('error-msg').textContent = 'AI analysis failed. Please try again.'
+        }
+        return
+      }
 
-// No session and not guest
-if (!sessionId) {
-  document.getElementById('loading').classList.add('hidden')
-  document.getElementById('no-session').classList.remove('hidden')
-  return
-}
+      // No session
+      if (!sessionId) {
+        document.getElementById('loading').classList.add('hidden')
+        document.getElementById('no-session').classList.remove('hidden')
+        return
+      }
 
-      // ── SUPABASE: get current user ──────────
+      // Get current user
       const session = await getSession()
       const userId = session?.user?.id || null
 
-      // ── SUPABASE: check if report exists ────
-const { data: existingArr } = await db
-  .from('assessment_reports')
-  .select('*')
-  .eq('session_id', sessionId)
-  .limit(1)
+      // Check if report already exists — use limit(1) not single()
+      const { data: existingArr } = await db
+        .from('assessment_reports')
+        .select('*')
+        .eq('session_id', sessionId)
+        .limit(1)
+      const existing = existingArr?.[0] || null
 
-const existing = existingArr?.[0] || null
-
-      // ── SUPABASE: fetch step responses ──────
+      // Fetch step responses
       const { data: responses } = await db
         .from('step_responses')
         .select('*')
         .eq('session_id', sessionId)
         .order('scenario_index', { ascending: true })
 
-      // ── SUPABASE: get user name ─────────────
+      // Get user name — use limit(1) not single()
       let name = 'Your Report'
       if (userId) {
-        const { data: profile } = await db
+        const { data: profileArr } = await db
           .from('profiles')
           .select('full_name')
           .eq('id', userId)
-          .single()
-        name = profile?.full_name || name
+          .limit(1)
+        name = profileArr?.[0]?.full_name || name
       }
 
       let report = existing
@@ -336,7 +324,6 @@ const existing = existingArr?.[0] || null
           report = aiResult
 
           if (userId) {
-            // ── SUPABASE: save report ───────────
             await db.from('assessment_reports').insert({
               session_id: sessionId,
               user_id: userId,
@@ -349,17 +336,14 @@ const existing = existingArr?.[0] || null
               ai_raw_response: aiResult
             })
 
-            // ── SUPABASE: update trust score ────
             await db.from('profiles')
               .update({ ai_trust_score: aiResult.readiness_score })
               .eq('id', userId)
 
-            // ── SUPABASE: update session score ──
             await db.from('assessment_sessions')
               .update({ raw_score: aiResult.readiness_score })
               .eq('id', sessionId)
 
-            // ── SUPABASE: issue certificate ─────
             if (aiResult.readiness_score >= 60) {
               const certNum = 'THP-' +
                 Math.random().toString(36).substr(2, 4).toUpperCase() + '-' +
@@ -373,10 +357,10 @@ const existing = existingArr?.[0] || null
             }
           }
         } catch (e) {
+          console.error('Report generation error:', e)
           document.getElementById('loading').classList.add('hidden')
           document.getElementById('error-screen').classList.remove('hidden')
-          document.getElementById('error-msg').textContent =
-            'AI analysis failed. Please try again.'
+          document.getElementById('error-msg').textContent = 'AI analysis failed. Please try again.'
           return
         }
       }
@@ -384,22 +368,21 @@ const existing = existingArr?.[0] || null
       if (!report) {
         document.getElementById('loading').classList.add('hidden')
         document.getElementById('error-screen').classList.remove('hidden')
-        document.getElementById('error-msg').textContent =
-          'No report data found for this session.'
+        document.getElementById('error-msg').textContent = 'No report data found for this session.'
         return
       }
 
-      // ── SUPABASE: get certificate link ──────
+      // Get certificate link — use limit(1) not single()
       if (userId) {
-        const { data: cert } = await db
+        const { data: certArr } = await db
           .from('certificates')
           .select('verify_token')
           .eq('session_id', sessionId)
-          .single()
+          .limit(1)
 
-        if (cert) {
+        if (certArr?.[0]) {
           const certLink = document.getElementById('cert-link')
-          certLink.href = `certificate.html?token=${cert.verify_token}`
+          certLink.href = `certificate.html?token=${certArr[0].verify_token}`
           certLink.classList.remove('hidden')
         }
       }
@@ -410,5 +393,4 @@ const existing = existingArr?.[0] || null
     init()
   </script>
 </body>
-
 </html>
