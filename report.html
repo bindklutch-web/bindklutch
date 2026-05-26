@@ -263,14 +263,38 @@ const res = await fetch('/.netlify/functions/analyze', {
 
     // ── Main init ─────────────────────────────
     async function init() {
-      const params = new URLSearchParams(window.location.search)
-      const sessionId = params.get('session')
+const params = new URLSearchParams(window.location.search)
+const sessionId = params.get('session')
+const isGuest = params.get('guest') === 'true'
 
-      if (!sessionId) {
-        document.getElementById('loading').classList.add('hidden')
-        document.getElementById('no-session').classList.remove('hidden')
-        return
-      }
+// Guest mode — use sessionStorage responses
+if (isGuest) {
+  const stored = sessionStorage.getItem('guest_responses')
+  if (!stored) {
+    document.getElementById('loading').classList.add('hidden')
+    document.getElementById('no-session').classList.remove('hidden')
+    return
+  }
+  const responses = JSON.parse(stored)
+  try {
+    const aiResult = await generateAIReport(responses)
+    renderReport(aiResult, 'Guest User', responses)
+  } catch(e) {
+    document.getElementById('loading').innerHTML = `
+      <div class="alert alert-error max-w-sm mx-auto">
+        <span>AI analysis failed. Please try again.</span>
+      </div>
+    `
+  }
+  return
+}
+
+// No session and not guest
+if (!sessionId) {
+  document.getElementById('loading').classList.add('hidden')
+  document.getElementById('no-session').classList.remove('hidden')
+  return
+}
 
       // ── SUPABASE: get current user ──────────
       const session = await getSession()
