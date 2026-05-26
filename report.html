@@ -244,20 +244,13 @@ Return ONLY valid JSON with this exact structure (no markdown, no code blocks):
   "recruiter_summary": "<1 paragraph for hiring manager>"
 }`
 
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-   headers: {
-     'Content-Type': 'application/json',
-     'x-api-key': 'sk-ant-YOUR-KEY-HERE',
-     'anthropic-version': '2023-06-01',
-     'anthropic-dangerous-direct-browser-access': 'true'
-   },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 1000,
-          messages: [{ role: 'user', content: prompt }]
-        })
-      })
+const res = await fetch('/.netlify/functions/analyze', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    messages: [{ role: 'user', content: prompt }]
+  })
+})
 
       const data = await res.json()
       const text = data.content?.[0]?.text || ''
