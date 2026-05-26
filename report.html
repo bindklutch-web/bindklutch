@@ -301,11 +301,13 @@ if (!sessionId) {
       const userId = session?.user?.id || null
 
       // ── SUPABASE: check if report exists ────
-      const { data: existing } = await db
-        .from('assessment_reports')
-        .select('*')
-        .eq('session_id', sessionId)
-        .single()
+const { data: existingArr } = await db
+  .from('assessment_reports')
+  .select('*')
+  .eq('session_id', sessionId)
+  .limit(1)
+
+const existing = existingArr?.[0] || null
 
       // ── SUPABASE: fetch step responses ──────
       const { data: responses } = await db
