@@ -31,7 +31,24 @@
     <!-- LOADING -->
     <div id="screen-loading" class="flex flex-col items-center justify-center min-h-96 gap-4">
       <span class="loading loading-spinner loading-lg text-primary"></span>
-      <p class="text-base-content/50">Loading your assessment...</p>
+      <p class="text-base-content/50">Loading...</p>
+    </div>
+
+    <!-- DOMAIN SELECTION -->
+    <div id="screen-domain" class="hidden">
+      <div class="text-center mb-8">
+        <div class="badge badge-primary badge-outline mb-4">Choose Your Assessment</div>
+        <h1 class="text-3xl font-bold mb-2">What do you want to verify today?</h1>
+        <p class="text-base-content/50">Each assessment takes about 4 minutes</p>
+      </div>
+      <div id="domain-grid" class="flex flex-col gap-4 mb-8">
+        <!-- Injected from Supabase -->
+      </div>
+      <div class="text-center">
+        <button id="domain-continue-btn" class="btn btn-primary btn-lg px-12" disabled onclick="handleDomainContinue()">
+          Continue →
+        </button>
+      </div>
     </div>
 
     <!-- ROLE SELECTION -->
@@ -42,7 +59,6 @@
         <p class="text-base-content/50 mb-1">This helps us personalise your report</p>
         <p class="text-base-content/30 text-sm">5 scenarios · About 4 minutes</p>
       </div>
-
       <div class="grid sm:grid-cols-2 gap-3 mb-8">
         <button class="role-btn card bg-base-200 shadow hover:shadow-lg transition-all cursor-pointer border-2 border-transparent" data-role="developer">
           <div class="card-body text-center py-6">
@@ -81,7 +97,6 @@
           </div>
         </button>
       </div>
-
       <div class="text-center">
         <button id="start-btn" class="btn btn-primary btn-lg px-12" disabled onclick="startAssessment()">
           Begin Assessment →
@@ -89,48 +104,29 @@
       </div>
     </div>
 
-    <!-- MAIN SCENARIO SCREEN (single screen) -->
+    <!-- SCENARIO SCREEN -->
     <div id="screen-scenario" class="hidden">
-
-      <!-- Domain badge -->
       <div class="mb-2">
-        <div class="badge badge-primary badge-outline" id="scenario-domain">Data Safety</div>
+        <div class="badge badge-primary badge-outline" id="scenario-domain">Domain</div>
       </div>
-
-      <!-- Title -->
       <h1 class="text-2xl font-bold mb-4" id="scenario-title">Loading...</h1>
-
-      <!-- Situation -->
       <div class="card bg-base-200 shadow mb-5">
         <div class="card-body py-4">
           <p class="text-base-content/70 leading-relaxed text-sm" id="scenario-situation"></p>
         </div>
       </div>
-
-      <!-- Question -->
       <p class="font-semibold text-base mb-3" id="scenario-question">What do you do?</p>
-
-      <!-- Answer choices -->
       <div id="choices-grid" class="flex flex-col gap-2 mb-6"></div>
 
-      <!-- Reason section — hidden until answer picked -->
+      <!-- Reason section — appears after answer picked -->
       <div id="reason-section" class="hidden">
-        <div class="divider text-xs text-base-content/30">Why did you make this choice?</div>
+        <div class="divider text-xs text-base-content/30">What was your main reason?</div>
         <div id="reason-grid" class="flex flex-col gap-2 mb-4"></div>
-
-        <!-- Next button -->
-        <button
-          id="next-btn"
-          class="btn btn-primary w-full"
-          disabled
-          onclick="handleNext()"
-        >
+        <button id="next-btn" class="btn btn-primary w-full" disabled onclick="handleNext()">
           Next Scenario →
         </button>
-
         <p id="encouragement" class="text-center text-base-content/30 text-xs mt-2"></p>
       </div>
-
     </div>
 
     <!-- FINAL QUESTION -->
@@ -140,29 +136,18 @@
         <h1 class="text-2xl font-bold mb-2">One last question</h1>
         <p class="text-base-content/50 text-sm">This one matters most</p>
       </div>
-
       <div class="card bg-base-200 shadow mb-6">
         <div class="card-body">
           <p class="text-base leading-relaxed">
-            Based on today — what is <span class="text-primary font-semibold">one thing</span> you will do differently with AI tools starting tomorrow?
+            Based on today — what is <span class="text-primary font-semibold">one thing</span> you will do differently starting tomorrow?
           </p>
         </div>
       </div>
-
       <div class="form-control mb-4">
-        <textarea
-          id="final-reflection"
-          class="textarea textarea-bordered w-full h-24"
-          placeholder="Even one sentence is fine..."
-        ></textarea>
+        <textarea id="final-reflection" class="textarea textarea-bordered w-full h-24" placeholder="Even one sentence is fine..."></textarea>
       </div>
-
-      <button class="btn btn-primary w-full mb-2" onclick="handleFinalSubmit()">
-        Complete Assessment ✓
-      </button>
-      <button class="btn btn-ghost w-full text-sm" onclick="handleFinalSubmit()">
-        Skip this question
-      </button>
+      <button class="btn btn-primary w-full mb-2" onclick="handleFinalSubmit()">Complete Assessment ✓</button>
+      <button class="btn btn-ghost w-full text-sm" onclick="handleFinalSubmit()">Skip this question</button>
     </div>
 
     <!-- COMPLETE -->
@@ -183,7 +168,9 @@
   <script src="js/theme.js"></script>
   <script>
 
+    // ── State ─────────────────────────────────
     let SCENARIOS = []
+    let DOMAINS = []
     let TOTAL = 5
     let currentIndex = 0
     let currentSession = null
@@ -191,6 +178,7 @@
     let selectedChoice = null
     let selectedReason = null
     let selectedRole = null
+    let selectedDomain = null
     let scenarioStartTime = null
     let timerSeconds = 0
     let timerInterval = null
@@ -198,7 +186,7 @@
 
     // ── Screens ───────────────────────────────
     function showScreen(name) {
-      ['loading','role','scenario','final','complete'].forEach(s => {
+      ['loading','domain','role','scenario','final','complete'].forEach(s => {
         document.getElementById(`screen-${s}`).classList.add('hidden')
       })
       document.getElementById(`screen-${name}`).classList.remove('hidden')
@@ -241,6 +229,74 @@
         `Scenario ${index + 1} of ${TOTAL}`
     }
 
+    // ── Build domain cards from Supabase ──────
+    function buildDomainCards(domains) {
+      const grid = document.getElementById('domain-grid')
+      grid.innerHTML = ''
+
+      domains.forEach(domain => {
+        const tags = (domain.tags || []).map(t =>
+          `<div class="badge badge-ghost badge-sm">${t}</div>`
+        ).join('')
+
+        const card = document.createElement('button')
+        card.className = 'domain-btn card bg-base-200 shadow hover:shadow-lg transition-all cursor-pointer border-2 border-transparent text-left'
+        card.dataset.domain = domain.name
+        card.innerHTML = `
+          <div class="card-body">
+            <div class="flex items-center gap-4">
+              <div class="text-4xl flex-shrink-0">${domain.icon}</div>
+              <div class="flex-1">
+                <h3 class="font-bold text-lg">${domain.name}</h3>
+                <p class="text-base-content/50 text-sm mb-2">${domain.description}</p>
+                <div class="flex flex-wrap gap-1">${tags}</div>
+              </div>
+            </div>
+          </div>
+        `
+        card.addEventListener('click', function() {
+          document.querySelectorAll('.domain-btn').forEach(b => {
+            b.classList.remove('border-primary')
+            b.classList.add('border-transparent')
+          })
+          this.classList.remove('border-transparent')
+          this.classList.add('border-primary')
+          selectedDomain = this.dataset.domain
+          document.getElementById('domain-continue-btn').disabled = false
+        })
+
+        grid.appendChild(card)
+      })
+    }
+
+    // ── Handle domain continue ────────────────
+    async function handleDomainContinue() {
+      const btn = document.getElementById('domain-continue-btn')
+      btn.disabled = true
+      btn.innerHTML = '<span class="loading loading-spinner loading-sm"></span> Loading...'
+
+      // Fetch scenarios for selected domain from Supabase
+      const { data: scenarios, error } = await db
+        .from('scenarios')
+        .select('*')
+        .eq('is_active', true)
+        .eq('domain', selectedDomain)
+        .order('sort_order', { ascending: true })
+        .limit(5)
+
+      if (error || !scenarios?.length) {
+        btn.disabled = false
+        btn.innerHTML = 'Continue →'
+        alert('Could not load scenarios. Please try again.')
+        return
+      }
+
+      SCENARIOS = scenarios
+      TOTAL = scenarios.length
+
+      showScreen('role')
+    }
+
     // ── Role selection ────────────────────────
     document.querySelectorAll('.role-btn').forEach(btn => {
       btn.addEventListener('click', function() {
@@ -280,12 +336,10 @@
       document.getElementById('scenario-situation').textContent = s.situation
       document.getElementById('scenario-question').textContent = s.question
 
-      // Hide reason section
       document.getElementById('reason-section').classList.add('hidden')
       document.getElementById('reason-grid').innerHTML = ''
       document.getElementById('next-btn').disabled = true
 
-      // Build choices
       const choices = typeof s.choices === 'string'
         ? JSON.parse(s.choices) : s.choices
       const grid = document.getElementById('choices-grid')
@@ -296,20 +350,16 @@
         const btn = document.createElement('button')
         btn.className = 'btn btn-outline w-full justify-start gap-3 h-auto py-3 text-left choice-btn'
         btn.innerHTML = `
-          <div class="badge badge-outline w-7 h-7 text-xs font-bold flex-shrink-0 p-0">
-            ${letters[choice.index]}
-          </div>
+          <div class="badge badge-outline w-7 h-7 text-xs font-bold flex-shrink-0 p-0">${letters[choice.index]}</div>
           <span class="flex-1 text-sm font-normal normal-case">${choice.text}</span>
         `
         btn.addEventListener('click', () => selectChoice(choice, btn))
         grid.appendChild(btn)
       })
 
-      // Update next button label
       document.getElementById('next-btn').textContent =
         index === TOTAL - 1 ? 'Continue →' : 'Next Scenario →'
 
-      // Encouragement
       const msgs = {2: 'Halfway there — great focus!', 4: 'Last one. Make it count.'}
       document.getElementById('encouragement').textContent = msgs[index] || ''
 
@@ -318,7 +368,6 @@
 
     // ── Select choice ─────────────────────────
     function selectChoice(choice, btn) {
-      // Highlight selected, fade others
       document.querySelectorAll('.choice-btn').forEach(b => {
         b.classList.remove('btn-primary', 'opacity-100')
         b.classList.add('btn-outline', 'opacity-40')
@@ -328,7 +377,6 @@
       selectedChoice = choice
       selectedReason = null
 
-      // Build reason options inline
       const scenario = SCENARIOS[currentIndex]
       const reasons = typeof scenario.reason_options === 'string'
         ? JSON.parse(scenario.reason_options)
@@ -346,10 +394,7 @@
         rGrid.appendChild(rbtn)
       })
 
-      // Show reason section smoothly
       document.getElementById('reason-section').classList.remove('hidden')
-
-      // Scroll to reason section
       setTimeout(() => {
         document.getElementById('reason-section').scrollIntoView({
           behavior: 'smooth', block: 'nearest'
@@ -452,31 +497,32 @@
       const session = await getSession()
       currentUser = session?.user || null
 
-      const { data: scenarios, error } = await db
-        .from('scenarios')
+      // Fetch domains from Supabase
+      const { data: domains, error: domainError } = await db
+        .from('domains')
         .select('*')
         .eq('is_active', true)
         .order('sort_order', { ascending: true })
-        .limit(5)
 
-      if (error || !scenarios?.length) {
+      if (domainError || !domains?.length) {
         document.getElementById('screen-loading').innerHTML = `
           <div class="alert alert-error max-w-sm mx-auto">
-            <span>Could not load scenarios. Please try again.</span>
+            <span>Could not load assessments. Please try again.</span>
           </div>
         `
         return
       }
 
-      SCENARIOS = scenarios
-      TOTAL = scenarios.length
+      DOMAINS = domains
+      buildDomainCards(domains)
 
+      // Create session if logged in
       if (currentUser) {
         const { data: sessionData } = await db
           .from('assessment_sessions')
           .insert({
             user_id: currentUser.id,
-            total_scenarios: TOTAL,
+            total_scenarios: 5,
             status: 'in_progress'
           })
           .select()
@@ -484,7 +530,7 @@
         if (sessionData) currentSession = sessionData
       }
 
-      showScreen('role')
+      showScreen('domain')
     }
 
     init()
