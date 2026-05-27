@@ -14,10 +14,11 @@
     <div class="navbar-start">
       <a href="index.html" class="text-xl font-bold">Think<span class="text-primary">Print</span></a>
     </div>
-    <div class="navbar-center">
+    <div class="navbar-center" id="progress-area" style="display:none;">
       <div class="flex flex-col items-center gap-1">
-        <progress id="progress-bar" class="progress progress-primary w-48" value="0" max="100"></progress>
-        <span id="progress-text" class="text-xs text-base-content/50">Scenario 1 of 8</span>
+        <!-- Node progress -->
+        <div class="flex items-center gap-2" id="progress-nodes"></div>
+        <span id="progress-text" class="text-xs text-base-content/50">Scenario 1 of 5</span>
       </div>
     </div>
     <div class="navbar-end gap-3">
@@ -32,6 +33,61 @@
     <div id="screen-loading" class="flex flex-col items-center justify-center min-h-96 gap-4">
       <span class="loading loading-spinner loading-lg text-primary"></span>
       <p class="text-base-content/50">Loading your assessment...</p>
+    </div>
+
+    <!-- ROLE SELECTION -->
+    <div id="screen-role" class="hidden">
+      <div class="text-center mb-8">
+        <div class="badge badge-primary badge-outline mb-4">Before We Start</div>
+        <h1 class="text-3xl font-bold mb-2">What best describes your role?</h1>
+        <p class="text-base-content/50">This helps us personalise your report</p>
+      </div>
+
+      <div class="grid sm:grid-cols-2 gap-3 mb-8">
+        <button class="role-btn card bg-base-200 shadow hover:shadow-lg transition-all cursor-pointer border-2 border-transparent" data-role="developer">
+          <div class="card-body text-center py-6">
+            <div class="text-3xl mb-2">💻</div>
+            <div class="font-semibold">Developer / Engineer</div>
+          </div>
+        </button>
+        <button class="role-btn card bg-base-200 shadow hover:shadow-lg transition-all cursor-pointer border-2 border-transparent" data-role="marketing">
+          <div class="card-body text-center py-6">
+            <div class="text-3xl mb-2">📣</div>
+            <div class="font-semibold">Marketing / Sales</div>
+          </div>
+        </button>
+        <button class="role-btn card bg-base-200 shadow hover:shadow-lg transition-all cursor-pointer border-2 border-transparent" data-role="hr">
+          <div class="card-body text-center py-6">
+            <div class="text-3xl mb-2">👥</div>
+            <div class="font-semibold">HR / Operations</div>
+          </div>
+        </button>
+        <button class="role-btn card bg-base-200 shadow hover:shadow-lg transition-all cursor-pointer border-2 border-transparent" data-role="finance">
+          <div class="card-body text-center py-6">
+            <div class="text-3xl mb-2">💰</div>
+            <div class="font-semibold">Finance / Legal</div>
+          </div>
+        </button>
+        <button class="role-btn card bg-base-200 shadow hover:shadow-lg transition-all cursor-pointer border-2 border-transparent" data-role="management">
+          <div class="card-body text-center py-6">
+            <div class="text-3xl mb-2">🎯</div>
+            <div class="font-semibold">Management</div>
+          </div>
+        </button>
+        <button class="role-btn card bg-base-200 shadow hover:shadow-lg transition-all cursor-pointer border-2 border-transparent" data-role="other">
+          <div class="card-body text-center py-6">
+            <div class="text-3xl mb-2">✨</div>
+            <div class="font-semibold">Other</div>
+          </div>
+        </button>
+      </div>
+
+      <div class="text-center">
+        <p class="text-base-content/40 text-sm mb-4">5 scenarios · About 4 minutes</p>
+        <button id="start-btn" class="btn btn-primary btn-lg px-12" disabled onclick="startAssessment()">
+          Begin Assessment →
+        </button>
+      </div>
     </div>
 
     <!-- SCENARIO -->
@@ -49,46 +105,81 @@
       <div id="choices-grid" class="flex flex-col gap-3"></div>
     </div>
 
-    <!-- JUSTIFICATION -->
-    <div id="screen-justification" class="hidden">
+    <!-- REASON SELECTION -->
+    <div id="screen-reason" class="hidden">
       <div class="alert alert-info mb-6">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
         </svg>
-        <span id="choice-selected-display" class="text-sm">Your choice: ...</span>
+        <span id="choice-display" class="text-sm font-medium"></span>
       </div>
 
-      <h2 class="text-2xl font-bold mb-2">Why did you make this choice?</h2>
-      <p class="text-base-content/50 text-sm mb-4">Explain your reasoning. This is the most important part.</p>
+      <h2 class="text-2xl font-bold mb-2">What was your main reason?</h2>
+      <p class="text-base-content/50 text-sm mb-6">Pick the one that best matches your thinking</p>
 
-      <div class="form-control mb-2">
+      <div id="reason-grid" class="flex flex-col gap-3 mb-6"></div>
+
+      <!-- Optional detail -->
+      <div class="form-control mb-6">
+        <label class="label">
+          <span class="label-text text-base-content/50">Add more detail — optional</span>
+        </label>
         <textarea
-          id="justification-text"
-          class="textarea textarea-bordered w-full h-36"
-          placeholder="Walk through your thinking. What factors did you consider? What risks or benefits influenced your decision?"
+          id="extra-detail"
+          class="textarea textarea-bordered w-full h-20"
+          placeholder="Anything else on your mind? (optional)"
         ></textarea>
       </div>
 
-      <div class="flex justify-between items-center mb-6">
-        <span id="char-count" class="text-sm text-base-content/40">0 / 100 minimum</span>
-        <span class="text-xs text-base-content/30">More detail = more accurate diagnosis</span>
+      <button
+        id="next-btn"
+        class="btn btn-primary w-full btn-lg"
+        disabled
+        onclick="handleNext()"
+      >
+        Next Scenario →
+      </button>
+
+      <!-- Encouragement messages -->
+      <p id="encouragement" class="text-center text-base-content/40 text-sm mt-3"></p>
+    </div>
+
+    <!-- FINAL QUESTION -->
+    <div id="screen-final" class="hidden">
+      <div class="text-center mb-8">
+        <div class="badge badge-success badge-outline mb-4">Almost Done</div>
+        <h1 class="text-2xl font-bold mb-2">One last question</h1>
+        <p class="text-base-content/50">This one matters most</p>
       </div>
 
       <div class="card bg-base-200 shadow mb-6">
         <div class="card-body">
-          <h3 class="card-title text-base mb-3">How confident are you in this choice?</h3>
-          <div class="flex gap-2">
-            <button class="btn btn-outline btn-sm flex-1 flex-col h-14 conf-btn" data-value="1"><span class="font-bold">1</span><span class="text-xs font-normal">Not sure</span></button>
-            <button class="btn btn-outline btn-sm flex-1 flex-col h-14 conf-btn" data-value="2"><span class="font-bold">2</span><span class="text-xs font-normal">Slightly</span></button>
-            <button class="btn btn-outline btn-sm flex-1 flex-col h-14 conf-btn" data-value="3"><span class="font-bold">3</span><span class="text-xs font-normal">Fairly</span></button>
-            <button class="btn btn-outline btn-sm flex-1 flex-col h-14 conf-btn" data-value="4"><span class="font-bold">4</span><span class="text-xs font-normal">Very sure</span></button>
-            <button class="btn btn-outline btn-sm flex-1 flex-col h-14 conf-btn" data-value="5"><span class="font-bold">5</span><span class="text-xs font-normal">Certain</span></button>
-          </div>
+          <p class="text-lg font-medium leading-relaxed">
+            Based on today's scenarios — what is <span class="text-primary">one thing</span> you will do differently with AI tools starting tomorrow?
+          </p>
         </div>
       </div>
 
-      <button id="next-btn" class="btn btn-primary w-full btn-lg" disabled onclick="handleNext()">
-        Next Scenario →
+      <div class="form-control mb-6">
+        <textarea
+          id="final-reflection"
+          class="textarea textarea-bordered w-full h-28"
+          placeholder="Even one sentence is fine. Be honest with yourself."
+        ></textarea>
+      </div>
+
+      <button
+        class="btn btn-primary w-full btn-lg"
+        onclick="handleFinalSubmit()"
+      >
+        Complete Assessment ✓
+      </button>
+
+      <button
+        class="btn btn-ghost w-full mt-2"
+        onclick="handleFinalSubmit()"
+      >
+        Skip this question
       </button>
     </div>
 
@@ -97,9 +188,8 @@
       <div class="flex flex-col items-center justify-center min-h-96 gap-6 text-center">
         <div class="text-6xl">✓</div>
         <h2 class="text-3xl font-bold">Assessment Complete</h2>
-        <p class="text-base-content/50">Analyzing your responses...</p>
+        <p class="text-base-content/50">Preparing your results...</p>
         <span class="loading loading-dots loading-lg text-primary"></span>
-        <p class="text-xs text-base-content/30">Redirecting to your report...</p>
       </div>
     </div>
 
@@ -113,12 +203,13 @@
 
     // ── State ─────────────────────────────────
     let SCENARIOS = []
-    let TOTAL = 0
+    let TOTAL = 5
     let currentIndex = 0
     let currentSession = null
     let currentUser = null
     let selectedChoice = null
-    let selectedConfidence = null
+    let selectedReason = null
+    let selectedRole = null
     let scenarioStartTime = null
     let timerSeconds = 0
     let timerInterval = null
@@ -126,10 +217,15 @@
 
     // ── Screens ───────────────────────────────
     function showScreen(name) {
-      ['loading','scenario','justification','complete'].forEach(s => {
+      ['loading','role','scenario','reason','final','complete'].forEach(s => {
         document.getElementById(`screen-${s}`).classList.add('hidden')
       })
       document.getElementById(`screen-${name}`).classList.remove('hidden')
+
+      // Show progress only during scenarios
+      const showProgress = ['scenario','reason'].includes(name)
+      document.getElementById('progress-area').style.display =
+        showProgress ? 'flex' : 'none'
     }
 
     // ── Timer ─────────────────────────────────
@@ -138,52 +234,97 @@
         timerSeconds++
         const m = Math.floor(timerSeconds / 60)
         const s = timerSeconds % 60
-        document.getElementById('timer').textContent = `${m}:${s.toString().padStart(2,'0')}`
+        document.getElementById('timer').textContent =
+          `${m}:${s.toString().padStart(2,'0')}`
       }, 1000)
+    }
+
+    // ── Progress nodes ────────────────────────
+    function updateProgress(index) {
+      const nodes = document.getElementById('progress-nodes')
+      nodes.innerHTML = ''
+      for (let i = 0; i < TOTAL; i++) {
+        const node = document.createElement('div')
+        if (i < index) {
+          node.className = 'w-3 h-3 rounded-full bg-primary'
+        } else if (i === index) {
+          node.className = 'w-4 h-4 rounded-full bg-primary ring-2 ring-primary ring-offset-2 ring-offset-base-100'
+        } else {
+          node.className = 'w-3 h-3 rounded-full bg-base-300'
+        }
+        nodes.appendChild(node)
+
+        if (i < TOTAL - 1) {
+          const line = document.createElement('div')
+          line.className = i < index
+            ? 'w-6 h-0.5 bg-primary'
+            : 'w-6 h-0.5 bg-base-300'
+          nodes.appendChild(line)
+        }
+      }
+
+      document.getElementById('progress-text').textContent =
+        `Scenario ${index + 1} of ${TOTAL}`
+    }
+
+    // ── Role selection ────────────────────────
+    document.querySelectorAll('.role-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.role-btn').forEach(b => {
+          b.classList.remove('border-primary')
+          b.classList.add('border-transparent')
+        })
+        this.classList.remove('border-transparent')
+        this.classList.add('border-primary')
+        selectedRole = this.dataset.role
+        document.getElementById('start-btn').disabled = false
+      })
+    })
+
+    // ── Start assessment ──────────────────────
+    async function startAssessment() {
+      if (currentUser) {
+        await db.from('assessment_sessions')
+          .update({ user_role: selectedRole })
+          .eq('id', currentSession.id)
+      }
+      loadScenario(0)
+      startTimer()
     }
 
     // ── Load scenario ─────────────────────────
     function loadScenario(index) {
       const s = SCENARIOS[index]
       selectedChoice = null
-      selectedConfidence = null
+      selectedReason = null
       scenarioStartTime = Date.now()
 
-      document.getElementById('progress-bar').value = (index / TOTAL) * 100
-      document.getElementById('progress-text').textContent = `Scenario ${index + 1} of ${TOTAL}`
+      updateProgress(index)
+
       document.getElementById('scenario-domain').textContent = s.domain
       document.getElementById('scenario-title').textContent = s.title
       document.getElementById('scenario-situation').textContent = s.situation
       document.getElementById('scenario-question').textContent = s.question
 
-      const choices = typeof s.choices === 'string' ? JSON.parse(s.choices) : s.choices
+      // Build choices
+      const choices = typeof s.choices === 'string'
+        ? JSON.parse(s.choices) : s.choices
       const grid = document.getElementById('choices-grid')
       grid.innerHTML = ''
+      const letters = ['A','B','C','D']
 
       choices.forEach(choice => {
-        const letters = ['A','B','C','D']
         const btn = document.createElement('button')
         btn.className = 'btn btn-outline w-full justify-start gap-4 h-auto py-4 text-left'
         btn.innerHTML = `
-          <div class="badge badge-primary badge-outline w-8 h-8 text-sm font-bold flex-shrink-0">${letters[choice.index]}</div>
+          <div class="badge badge-primary badge-outline w-8 h-8 text-sm font-bold flex-shrink-0">
+            ${letters[choice.index]}
+          </div>
           <span class="flex-1 text-sm font-normal normal-case">${choice.text}</span>
         `
         btn.addEventListener('click', () => selectChoice(choice, btn))
         grid.appendChild(btn)
       })
-
-      document.getElementById('justification-text').value = ''
-      document.getElementById('char-count').textContent = '0 / 100 minimum'
-      document.getElementById('char-count').className = 'text-sm text-base-content/40'
-      document.getElementById('next-btn').disabled = true
-      document.getElementById('next-btn').textContent =
-        index === TOTAL - 1 ? 'Complete Assessment ✓' : 'Next Scenario →'
-
-      document.querySelectorAll('.conf-btn').forEach(b => {
-        b.classList.remove('btn-primary')
-        b.classList.add('btn-outline')
-      })
-      selectedConfidence = null
 
       showScreen('scenario')
     }
@@ -200,139 +341,162 @@
 
       setTimeout(() => {
         const letters = ['A','B','C','D']
-        document.getElementById('choice-selected-display').textContent =
+        document.getElementById('choice-display').textContent =
           `Your choice: ${letters[choice.index]} — ${choice.text}`
-        showScreen('justification')
+
+        // Build reason options
+        const scenario = SCENARIOS[currentIndex]
+        const reasons = typeof scenario.reason_options === 'string'
+          ? JSON.parse(scenario.reason_options)
+          : scenario.reason_options || []
+
+        const grid = document.getElementById('reason-grid')
+        grid.innerHTML = ''
+        selectedReason = null
+        document.getElementById('next-btn').disabled = true
+        document.getElementById('extra-detail').value = ''
+
+        reasons.forEach(reason => {
+          const btn = document.createElement('button')
+          btn.className = 'btn btn-outline w-full justify-start h-auto py-3 text-left reason-btn'
+          btn.innerHTML = `
+            <span class="text-sm font-normal normal-case">${reason.text}</span>
+          `
+          btn.addEventListener('click', () => selectReason(reason, btn))
+          grid.appendChild(btn)
+        })
+
+        // Encouragement message
+        const msgs = ['', '', 'Halfway there — great focus!', '', 'Last scenario. Make it count.']
+        document.getElementById('encouragement').textContent =
+          msgs[currentIndex] || ''
+
+        // Update next button text
+        document.getElementById('next-btn').textContent =
+          currentIndex === TOTAL - 1
+            ? 'Continue →'
+            : 'Next Scenario →'
+
+        showScreen('reason')
       }, 350)
     }
 
-    // ── Justification ─────────────────────────
-    document.getElementById('justification-text').addEventListener('input', function() {
-      const len = this.value.length
-      const el = document.getElementById('char-count')
-      if (len < 100) {
-        el.textContent = `${len} / 100 minimum`
-        el.className = 'text-sm text-base-content/40'
-      } else {
-        el.textContent = `${len} characters ✓`
-        el.className = 'text-sm text-success'
-      }
-      validateNext()
-    })
-
-    // ── Confidence ────────────────────────────
-    document.querySelectorAll('.conf-btn').forEach(btn => {
-      btn.addEventListener('click', function() {
-        document.querySelectorAll('.conf-btn').forEach(b => {
-          b.classList.remove('btn-primary')
-          b.classList.add('btn-outline')
-        })
-        this.classList.remove('btn-outline')
-        this.classList.add('btn-primary')
-        selectedConfidence = parseInt(this.dataset.value)
-        validateNext()
+    // ── Select reason ─────────────────────────
+    function selectReason(reason, btn) {
+      document.querySelectorAll('.reason-btn').forEach(b => {
+        b.classList.remove('btn-primary')
+        b.classList.add('btn-outline')
       })
-    })
-
-    function validateNext() {
-      const text = document.getElementById('justification-text').value
-      document.getElementById('next-btn').disabled = !(text.length >= 100 && selectedConfidence !== null)
+      btn.classList.remove('btn-outline')
+      btn.classList.add('btn-primary')
+      selectedReason = reason
+      document.getElementById('next-btn').disabled = false
     }
 
     // ── Handle next ───────────────────────────
     async function handleNext() {
       await saveResponse()
+
       if (currentIndex < TOTAL - 1) {
         currentIndex++
         loadScenario(currentIndex)
       } else {
-        await completeAssessment()
+        // Go to final question
+        showScreen('final')
       }
     }
 
     // ── Save response ─────────────────────────
     async function saveResponse() {
-  const justification = document.getElementById('justification-text').value
-  const timeTaken = Math.round((Date.now() - scenarioStartTime) / 1000)
-  const scenario = SCENARIOS[currentIndex]
+      const timeTaken = Math.round((Date.now() - scenarioStartTime) / 1000)
+      const scenario = SCENARIOS[currentIndex]
+      const extraDetail = document.getElementById('extra-detail').value
 
-  // Always save to guest array
-  guestResponses.push({
-    session_id: 'guest',
-    user_id: 'guest',
-    scenario_index: currentIndex,
-    scenario_title: scenario.title,
-    choice_made: selectedChoice.text,
-    choice_index: selectedChoice.index,
-    justification,
-    confidence_level: selectedConfidence,
-    time_taken_secs: timeTaken
-  })
+      const response = {
+        session_id: currentSession?.id || 'guest',
+        user_id: currentUser?.id || 'guest',
+        scenario_index: currentIndex,
+        scenario_title: scenario.title,
+        choice_made: selectedChoice.text,
+        choice_index: selectedChoice.index,
+        justification: selectedReason.text + (extraDetail ? '. ' + extraDetail : ''),
+        confidence_level: 3,
+        time_taken_secs: timeTaken,
+        reason_choice_index: selectedReason.index,
+        reason_choice_text: selectedReason.text,
+        is_reason_positive: selectedReason.positive
+      }
 
-  // Also save to Supabase if logged in
-  if (currentUser && currentSession) {
-    await db.from('step_responses').insert({
-      session_id: currentSession.id,
-      user_id: currentUser.id,
-      scenario_index: currentIndex,
-      scenario_title: scenario.title,
-      choice_made: selectedChoice.text,
-      choice_index: selectedChoice.index,
-      justification,
-      confidence_level: selectedConfidence,
-      time_taken_secs: timeTaken
-    })
+      guestResponses.push(response)
 
-    await db.from('assessment_sessions')
-      .update({ completed_scenarios: currentIndex + 1 })
-      .eq('id', currentSession.id)
-  }
-}
+      if (currentUser && currentSession) {
+        await db.from('step_responses').insert({
+          session_id: currentSession.id,
+          user_id: currentUser.id,
+          scenario_index: currentIndex,
+          scenario_title: scenario.title,
+          choice_made: selectedChoice.text,
+          choice_index: selectedChoice.index,
+          justification: response.justification,
+          confidence_level: 3,
+          time_taken_secs: timeTaken,
+          reason_choice_index: selectedReason.index,
+          reason_choice_text: selectedReason.text,
+          is_reason_positive: selectedReason.positive
+        })
 
-    // ── Complete ──────────────────────────────
-async function completeAssessment() {
-  showScreen('complete')
-  clearInterval(timerInterval)
+        await db.from('assessment_sessions')
+          .update({ completed_scenarios: currentIndex + 1 })
+          .eq('id', currentSession.id)
+      }
+    }
 
-  if (currentUser && currentSession) {
-    await db.from('assessment_sessions').update({
-      status: 'completed',
-      completed_at: new Date().toISOString(),
-      completed_scenarios: TOTAL
-    }).eq('id', currentSession.id)
+    // ── Handle final question ─────────────────
+    async function handleFinalSubmit() {
+      const reflection = document.getElementById('final-reflection').value
 
-    setTimeout(() => {
-      window.location.href = `review.html?session=${currentSession.id}`
-    }, 2000)
+      if (currentUser && currentSession) {
+        await db.from('assessment_sessions')
+          .update({
+            status: 'completed',
+            completed_at: new Date().toISOString(),
+            completed_scenarios: TOTAL,
+            final_reflection: reflection
+          })
+          .eq('id', currentSession.id)
+      }
 
-  } else {
-    // Guest mode — store responses in sessionStorage
-    // and go directly to report
-    sessionStorage.setItem('guest_responses', JSON.stringify(guestResponses))
-    setTimeout(() => {
-      window.location.href = `review.html?guest=true`
-    }, 2000)
-  }
-}
+      showScreen('complete')
+      clearInterval(timerInterval)
+
+      setTimeout(() => {
+        if (currentUser && currentSession) {
+          window.location.href = `review.html?session=${currentSession.id}`
+        } else {
+          sessionStorage.setItem('guest_responses', JSON.stringify(guestResponses))
+          window.location.href = `review.html?guest=true`
+        }
+      }, 2000)
+    }
 
     // ── Init ──────────────────────────────────
     async function init() {
       showScreen('loading')
 
-      // Check session — no redirect, guest allowed
       const session = await getSession()
       currentUser = session?.user || null
 
-      // Fetch scenarios from Supabase
+      // Fetch only first 5 active scenarios
       const { data: scenarios, error } = await db
         .from('scenarios')
         .select('*')
         .eq('is_active', true)
         .order('sort_order', { ascending: true })
+        .limit(5)
 
       if (error || !scenarios?.length) {
         document.getElementById('screen-loading').innerHTML = `
-          <div class="alert alert-error max-w-sm">
+          <div class="alert alert-error max-w-sm mx-auto">
             <span>Could not load scenarios. Please try again.</span>
           </div>
         `
@@ -342,9 +506,8 @@ async function completeAssessment() {
       SCENARIOS = scenarios
       TOTAL = scenarios.length
 
-      // Create session only if logged in
       if (currentUser) {
-        const { data: sessionData, error: sessionError } = await db
+        const { data: sessionData } = await db
           .from('assessment_sessions')
           .insert({
             user_id: currentUser.id,
@@ -354,11 +517,10 @@ async function completeAssessment() {
           .select()
           .single()
 
-        if (!sessionError) currentSession = sessionData
+        if (sessionData) currentSession = sessionData
       }
 
-      startTimer()
-      loadScenario(0)
+      showScreen('role')
     }
 
     init()
