@@ -16,7 +16,6 @@
     </div>
     <div class="navbar-center" id="progress-area" style="display:none;">
       <div class="flex flex-col items-center gap-1">
-        <!-- Node progress -->
         <div class="flex items-center gap-2" id="progress-nodes"></div>
         <span id="progress-text" class="text-xs text-base-content/50">Scenario 1 of 5</span>
       </div>
@@ -40,7 +39,8 @@
       <div class="text-center mb-8">
         <div class="badge badge-primary badge-outline mb-4">Before We Start</div>
         <h1 class="text-3xl font-bold mb-2">What best describes your role?</h1>
-        <p class="text-base-content/50">This helps us personalise your report</p>
+        <p class="text-base-content/50 mb-1">This helps us personalise your report</p>
+        <p class="text-base-content/30 text-sm">5 scenarios · About 4 minutes</p>
       </div>
 
       <div class="grid sm:grid-cols-2 gap-3 mb-8">
@@ -83,65 +83,54 @@
       </div>
 
       <div class="text-center">
-        <p class="text-base-content/40 text-sm mb-4">5 scenarios · About 4 minutes</p>
         <button id="start-btn" class="btn btn-primary btn-lg px-12" disabled onclick="startAssessment()">
           Begin Assessment →
         </button>
       </div>
     </div>
 
-    <!-- SCENARIO -->
+    <!-- MAIN SCENARIO SCREEN (single screen) -->
     <div id="screen-scenario" class="hidden">
+
+      <!-- Domain badge -->
       <div class="mb-2">
         <div class="badge badge-primary badge-outline" id="scenario-domain">Data Safety</div>
       </div>
-      <h1 class="text-3xl font-bold mb-4" id="scenario-title">Loading...</h1>
-      <div class="card bg-base-200 shadow mb-6">
-        <div class="card-body">
-          <p class="text-base-content/70 leading-relaxed" id="scenario-situation"></p>
+
+      <!-- Title -->
+      <h1 class="text-2xl font-bold mb-4" id="scenario-title">Loading...</h1>
+
+      <!-- Situation -->
+      <div class="card bg-base-200 shadow mb-5">
+        <div class="card-body py-4">
+          <p class="text-base-content/70 leading-relaxed text-sm" id="scenario-situation"></p>
         </div>
       </div>
-      <p class="font-semibold text-lg mb-4" id="scenario-question">What do you do?</p>
-      <div id="choices-grid" class="flex flex-col gap-3"></div>
-    </div>
 
-    <!-- REASON SELECTION -->
-    <div id="screen-reason" class="hidden">
-      <div class="alert alert-info mb-6">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-        </svg>
-        <span id="choice-display" class="text-sm font-medium"></span>
+      <!-- Question -->
+      <p class="font-semibold text-base mb-3" id="scenario-question">What do you do?</p>
+
+      <!-- Answer choices -->
+      <div id="choices-grid" class="flex flex-col gap-2 mb-6"></div>
+
+      <!-- Reason section — hidden until answer picked -->
+      <div id="reason-section" class="hidden">
+        <div class="divider text-xs text-base-content/30">Why did you make this choice?</div>
+        <div id="reason-grid" class="flex flex-col gap-2 mb-4"></div>
+
+        <!-- Next button -->
+        <button
+          id="next-btn"
+          class="btn btn-primary w-full"
+          disabled
+          onclick="handleNext()"
+        >
+          Next Scenario →
+        </button>
+
+        <p id="encouragement" class="text-center text-base-content/30 text-xs mt-2"></p>
       </div>
 
-      <h2 class="text-2xl font-bold mb-2">What was your main reason?</h2>
-      <p class="text-base-content/50 text-sm mb-6">Pick the one that best matches your thinking</p>
-
-      <div id="reason-grid" class="flex flex-col gap-3 mb-6"></div>
-
-      <!-- Optional detail -->
-      <div class="form-control mb-6">
-        <label class="label">
-          <span class="label-text text-base-content/50">Add more detail — optional</span>
-        </label>
-        <textarea
-          id="extra-detail"
-          class="textarea textarea-bordered w-full h-20"
-          placeholder="Anything else on your mind? (optional)"
-        ></textarea>
-      </div>
-
-      <button
-        id="next-btn"
-        class="btn btn-primary w-full btn-lg"
-        disabled
-        onclick="handleNext()"
-      >
-        Next Scenario →
-      </button>
-
-      <!-- Encouragement messages -->
-      <p id="encouragement" class="text-center text-base-content/40 text-sm mt-3"></p>
     </div>
 
     <!-- FINAL QUESTION -->
@@ -149,36 +138,29 @@
       <div class="text-center mb-8">
         <div class="badge badge-success badge-outline mb-4">Almost Done</div>
         <h1 class="text-2xl font-bold mb-2">One last question</h1>
-        <p class="text-base-content/50">This one matters most</p>
+        <p class="text-base-content/50 text-sm">This one matters most</p>
       </div>
 
       <div class="card bg-base-200 shadow mb-6">
         <div class="card-body">
-          <p class="text-lg font-medium leading-relaxed">
-            Based on today's scenarios — what is <span class="text-primary">one thing</span> you will do differently with AI tools starting tomorrow?
+          <p class="text-base leading-relaxed">
+            Based on today — what is <span class="text-primary font-semibold">one thing</span> you will do differently with AI tools starting tomorrow?
           </p>
         </div>
       </div>
 
-      <div class="form-control mb-6">
+      <div class="form-control mb-4">
         <textarea
           id="final-reflection"
-          class="textarea textarea-bordered w-full h-28"
-          placeholder="Even one sentence is fine. Be honest with yourself."
+          class="textarea textarea-bordered w-full h-24"
+          placeholder="Even one sentence is fine..."
         ></textarea>
       </div>
 
-      <button
-        class="btn btn-primary w-full btn-lg"
-        onclick="handleFinalSubmit()"
-      >
+      <button class="btn btn-primary w-full mb-2" onclick="handleFinalSubmit()">
         Complete Assessment ✓
       </button>
-
-      <button
-        class="btn btn-ghost w-full mt-2"
-        onclick="handleFinalSubmit()"
-      >
+      <button class="btn btn-ghost w-full text-sm" onclick="handleFinalSubmit()">
         Skip this question
       </button>
     </div>
@@ -201,7 +183,6 @@
   <script src="js/theme.js"></script>
   <script>
 
-    // ── State ─────────────────────────────────
     let SCENARIOS = []
     let TOTAL = 5
     let currentIndex = 0
@@ -217,15 +198,12 @@
 
     // ── Screens ───────────────────────────────
     function showScreen(name) {
-      ['loading','role','scenario','reason','final','complete'].forEach(s => {
+      ['loading','role','scenario','final','complete'].forEach(s => {
         document.getElementById(`screen-${s}`).classList.add('hidden')
       })
       document.getElementById(`screen-${name}`).classList.remove('hidden')
-
-      // Show progress only during scenarios
-      const showProgress = ['scenario','reason'].includes(name)
       document.getElementById('progress-area').style.display =
-        showProgress ? 'flex' : 'none'
+        name === 'scenario' ? 'flex' : 'none'
     }
 
     // ── Timer ─────────────────────────────────
@@ -253,16 +231,12 @@
           node.className = 'w-3 h-3 rounded-full bg-base-300'
         }
         nodes.appendChild(node)
-
         if (i < TOTAL - 1) {
           const line = document.createElement('div')
-          line.className = i < index
-            ? 'w-6 h-0.5 bg-primary'
-            : 'w-6 h-0.5 bg-base-300'
+          line.className = i < index ? 'w-6 h-0.5 bg-primary' : 'w-6 h-0.5 bg-base-300'
           nodes.appendChild(line)
         }
       }
-
       document.getElementById('progress-text').textContent =
         `Scenario ${index + 1} of ${TOTAL}`
     }
@@ -283,7 +257,7 @@
 
     // ── Start assessment ──────────────────────
     async function startAssessment() {
-      if (currentUser) {
+      if (currentUser && currentSession) {
         await db.from('assessment_sessions')
           .update({ user_role: selectedRole })
           .eq('id', currentSession.id)
@@ -306,6 +280,11 @@
       document.getElementById('scenario-situation').textContent = s.situation
       document.getElementById('scenario-question').textContent = s.question
 
+      // Hide reason section
+      document.getElementById('reason-section').classList.add('hidden')
+      document.getElementById('reason-grid').innerHTML = ''
+      document.getElementById('next-btn').disabled = true
+
       // Build choices
       const choices = typeof s.choices === 'string'
         ? JSON.parse(s.choices) : s.choices
@@ -315,9 +294,9 @@
 
       choices.forEach(choice => {
         const btn = document.createElement('button')
-        btn.className = 'btn btn-outline w-full justify-start gap-4 h-auto py-4 text-left'
+        btn.className = 'btn btn-outline w-full justify-start gap-3 h-auto py-3 text-left choice-btn'
         btn.innerHTML = `
-          <div class="badge badge-primary badge-outline w-8 h-8 text-sm font-bold flex-shrink-0">
+          <div class="badge badge-outline w-7 h-7 text-xs font-bold flex-shrink-0 p-0">
             ${letters[choice.index]}
           </div>
           <span class="flex-1 text-sm font-normal normal-case">${choice.text}</span>
@@ -326,59 +305,56 @@
         grid.appendChild(btn)
       })
 
+      // Update next button label
+      document.getElementById('next-btn').textContent =
+        index === TOTAL - 1 ? 'Continue →' : 'Next Scenario →'
+
+      // Encouragement
+      const msgs = {2: 'Halfway there — great focus!', 4: 'Last one. Make it count.'}
+      document.getElementById('encouragement').textContent = msgs[index] || ''
+
       showScreen('scenario')
     }
 
     // ── Select choice ─────────────────────────
     function selectChoice(choice, btn) {
-      document.querySelectorAll('#choices-grid button').forEach(b => {
-        b.classList.remove('btn-primary')
-        b.classList.add('btn-outline')
+      // Highlight selected, fade others
+      document.querySelectorAll('.choice-btn').forEach(b => {
+        b.classList.remove('btn-primary', 'opacity-100')
+        b.classList.add('btn-outline', 'opacity-40')
       })
-      btn.classList.remove('btn-outline')
-      btn.classList.add('btn-primary')
+      btn.classList.remove('btn-outline', 'opacity-40')
+      btn.classList.add('btn-primary', 'opacity-100')
       selectedChoice = choice
+      selectedReason = null
 
+      // Build reason options inline
+      const scenario = SCENARIOS[currentIndex]
+      const reasons = typeof scenario.reason_options === 'string'
+        ? JSON.parse(scenario.reason_options)
+        : scenario.reason_options || []
+
+      const rGrid = document.getElementById('reason-grid')
+      rGrid.innerHTML = ''
+      document.getElementById('next-btn').disabled = true
+
+      reasons.forEach(reason => {
+        const rbtn = document.createElement('button')
+        rbtn.className = 'btn btn-outline btn-sm w-full justify-start h-auto py-2 text-left reason-btn normal-case font-normal text-sm'
+        rbtn.textContent = reason.text
+        rbtn.addEventListener('click', () => selectReason(reason, rbtn))
+        rGrid.appendChild(rbtn)
+      })
+
+      // Show reason section smoothly
+      document.getElementById('reason-section').classList.remove('hidden')
+
+      // Scroll to reason section
       setTimeout(() => {
-        const letters = ['A','B','C','D']
-        document.getElementById('choice-display').textContent =
-          `Your choice: ${letters[choice.index]} — ${choice.text}`
-
-        // Build reason options
-        const scenario = SCENARIOS[currentIndex]
-        const reasons = typeof scenario.reason_options === 'string'
-          ? JSON.parse(scenario.reason_options)
-          : scenario.reason_options || []
-
-        const grid = document.getElementById('reason-grid')
-        grid.innerHTML = ''
-        selectedReason = null
-        document.getElementById('next-btn').disabled = true
-        document.getElementById('extra-detail').value = ''
-
-        reasons.forEach(reason => {
-          const btn = document.createElement('button')
-          btn.className = 'btn btn-outline w-full justify-start h-auto py-3 text-left reason-btn'
-          btn.innerHTML = `
-            <span class="text-sm font-normal normal-case">${reason.text}</span>
-          `
-          btn.addEventListener('click', () => selectReason(reason, btn))
-          grid.appendChild(btn)
+        document.getElementById('reason-section').scrollIntoView({
+          behavior: 'smooth', block: 'nearest'
         })
-
-        // Encouragement message
-        const msgs = ['', '', 'Halfway there — great focus!', '', 'Last scenario. Make it count.']
-        document.getElementById('encouragement').textContent =
-          msgs[currentIndex] || ''
-
-        // Update next button text
-        document.getElementById('next-btn').textContent =
-          currentIndex === TOTAL - 1
-            ? 'Continue →'
-            : 'Next Scenario →'
-
-        showScreen('reason')
-      }, 350)
+      }, 100)
     }
 
     // ── Select reason ─────────────────────────
@@ -395,14 +371,19 @@
 
     // ── Handle next ───────────────────────────
     async function handleNext() {
+      document.getElementById('next-btn').disabled = true
+      document.getElementById('next-btn').innerHTML =
+        '<span class="loading loading-spinner loading-xs"></span> Saving...'
+
       await saveResponse()
 
       if (currentIndex < TOTAL - 1) {
         currentIndex++
         loadScenario(currentIndex)
+        window.scrollTo({ top: 0, behavior: 'smooth' })
       } else {
-        // Go to final question
         showScreen('final')
+        window.scrollTo({ top: 0, behavior: 'smooth' })
       }
     }
 
@@ -410,16 +391,13 @@
     async function saveResponse() {
       const timeTaken = Math.round((Date.now() - scenarioStartTime) / 1000)
       const scenario = SCENARIOS[currentIndex]
-      const extraDetail = document.getElementById('extra-detail').value
 
       const response = {
-        session_id: currentSession?.id || 'guest',
-        user_id: currentUser?.id || 'guest',
         scenario_index: currentIndex,
         scenario_title: scenario.title,
         choice_made: selectedChoice.text,
         choice_index: selectedChoice.index,
-        justification: selectedReason.text + (extraDetail ? '. ' + extraDetail : ''),
+        justification: selectedReason.text,
         confidence_level: 3,
         time_taken_secs: timeTaken,
         reason_choice_index: selectedReason.index,
@@ -433,37 +411,25 @@
         await db.from('step_responses').insert({
           session_id: currentSession.id,
           user_id: currentUser.id,
-          scenario_index: currentIndex,
-          scenario_title: scenario.title,
-          choice_made: selectedChoice.text,
-          choice_index: selectedChoice.index,
-          justification: response.justification,
-          confidence_level: 3,
-          time_taken_secs: timeTaken,
-          reason_choice_index: selectedReason.index,
-          reason_choice_text: selectedReason.text,
-          is_reason_positive: selectedReason.positive
+          ...response
         })
-
         await db.from('assessment_sessions')
           .update({ completed_scenarios: currentIndex + 1 })
           .eq('id', currentSession.id)
       }
     }
 
-    // ── Handle final question ─────────────────
+    // ── Final submit ──────────────────────────
     async function handleFinalSubmit() {
       const reflection = document.getElementById('final-reflection').value
 
       if (currentUser && currentSession) {
-        await db.from('assessment_sessions')
-          .update({
-            status: 'completed',
-            completed_at: new Date().toISOString(),
-            completed_scenarios: TOTAL,
-            final_reflection: reflection
-          })
-          .eq('id', currentSession.id)
+        await db.from('assessment_sessions').update({
+          status: 'completed',
+          completed_at: new Date().toISOString(),
+          completed_scenarios: TOTAL,
+          final_reflection: reflection
+        }).eq('id', currentSession.id)
       }
 
       showScreen('complete')
@@ -486,7 +452,6 @@
       const session = await getSession()
       currentUser = session?.user || null
 
-      // Fetch only first 5 active scenarios
       const { data: scenarios, error } = await db
         .from('scenarios')
         .select('*')
@@ -516,7 +481,6 @@
           })
           .select()
           .single()
-
         if (sessionData) currentSession = sessionData
       }
 
