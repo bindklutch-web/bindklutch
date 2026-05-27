@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html data-theme="dark" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page Not Found — ThinkPrint</title>
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-base-100 min-h-screen flex flex-col">
+
+  <div class="navbar bg-base-100 border-b border-base-200 px-6">
+    <div class="navbar-start">
+      <a href="index.html" class="text-xl font-bold">Think<span class="text-primary">Print</span></a>
+    </div>
+    <div class="navbar-end">
+      <button id="theme-toggle" onclick="toggleTheme()" class="btn btn-ghost btn-sm btn-circle">☀️</button>
+    </div>
+  </div>
+
+  <div class="flex-1 flex items-center justify-center px-6">
+    <div class="text-center max-w-md">
+
+      <div class="text-8xl font-black text-primary mb-4">404</div>
+      <h1 class="text-2xl font-bold mb-3">This page doesn't exist</h1>
+      <p class="text-base-content/50 mb-8">
+        The page you're looking for may have moved or never existed.
+        Let's get you back on track.
+      </p>
+
+      <div class="flex flex-col sm:flex-row gap-3 justify-center">
+        <a href="index.html" class="btn btn-primary">Go to Homepage</a>
+        <a href="assessment.html" class="btn btn-outline">Take Assessment</a>
+        <a href="dashboard.html" class="btn btn-ghost">Dashboard</a>
+      </div>
+
+      <div class="mt-12 text-sm text-base-content/30">
+        If you followed a link and ended up here — 
+        <a href="contact.html" class="link link-hover text-base-content/50">let us know</a>.
+      </div>
+
+    </div>
+  </div>
+
+  <script src="js/theme.js"></script>
+</body>
+</html>

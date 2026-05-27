@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html data-theme="dark" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terms & Privacy — ThinkPrint</title>
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-base-100 min-h-screen">
+
+  <div class="navbar bg-base-100 border-b border-base-200 px-6 sticky top-0 z-50">
+    <div class="navbar-start">
+      <a href="index.html" class="text-xl font-bold">Think<span class="text-primary">Print</span></a>
+    </div>
+    <div class="navbar-end gap-2">
+      <button id="theme-toggle" onclick="toggleTheme()" class="btn btn-ghost btn-sm btn-circle">☀️</button>
+      <a href="index.html" class="btn btn-ghost btn-sm">Home</a>
+    </div>
+  </div>
+
+  <div class="container mx-auto px-6 py-16 max-w-3xl">
+
+    <!-- Tab navigation -->
+    <div class="tabs tabs-boxed mb-10 bg-base-200 w-fit">
+      <button class="tab tab-active" id="tab-terms" onclick="showTab('terms')">Terms of Use</button>
+      <button class="tab" id="tab-privacy" onclick="showTab('privacy')">Privacy Policy</button>
+    </div>
+
+    <!-- Terms of Use -->
+    <div id="content-terms">
+      <h1 class="text-3xl font-bold mb-2">Terms of Use</h1>
+      <p class="text-base-content/40 text-sm mb-8">Last updated: May 2026</p>
+
+      <div class="prose prose-invert max-w-none space-y-6 text-base-content/70">
+
+        <div class="card bg-base-200 shadow">
+          <div class="card-body">
+            <h2 class="font-bold text-lg text-base-content">1. Acceptance of Terms</h2>
+            <p class="text-sm leading-relaxed">By accessing or using ThinkPrint you agree to be bound by these Terms of Use. If you do not agree, please do not use the platform.</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-200 shadow">
+          <div class="card-body">
+            <h2 class="font-bold text-lg text-base-content">2. Use of the Platform</h2>
+            <p class="text-sm leading-relaxed">ThinkPrint provides professional judgment assessments, AI-powered reports and verified certificates. You may use the platform for personal and professional development. You may not use it for fraudulent purposes, to misrepresent credentials, or to attempt to game the assessment system.</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-200 shadow">
+          <div class="card-body">
+            <h2 class="font-bold text-lg text-base-content">3. Accounts</h2>
+            <p class="text-sm leading-relaxed">You are responsible for maintaining the security of your account. You must not share your credentials or allow others to access the platform under your identity. We reserve the right to suspend accounts that violate these terms.</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-200 shadow">
+          <div class="card-body">
+            <h2 class="font-bold text-lg text-base-content">4. Certificates and Credentials</h2>
+            <p class="text-sm leading-relaxed">ThinkPrint certificates are issued based on genuine assessment performance. Certificates obtained through dishonest means may be revoked. We reserve the right to investigate and void any certificate where fraud is suspected.</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-200 shadow">
+          <div class="card-body">
+            <h2 class="font-bold text-lg text-base-content">5. Intellectual Property</h2>
+            <p class="text-sm leading-relaxed">All scenarios, content, and platform design are owned by ThinkPrint. You may not reproduce, distribute or create derivative works without written permission.</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-200 shadow">
+          <div class="card-body">
+            <h2 class="font-bold text-lg text-base-content">6. Limitation of Liability</h2>
+            <p class="text-sm leading-relaxed">ThinkPrint reports and certificates are professional tools designed to inform judgment — not replace it. We make no guarantees about employment outcomes, promotions or hiring decisions made using our platform. Our liability is limited to the amount paid for the service in the preceding 12 months.</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-200 shadow">
+          <div class="card-body">
+            <h2 class="font-bold text-lg text-base-content">7. Changes to Terms</h2>
+            <p class="text-sm leading-relaxed">We may update these terms from time to time. Continued use of the platform after changes constitutes acceptance of the new terms.</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-200 shadow">
+          <div class="card-body">
+            <h2 class="font-bold text-lg text-base-content">8. Contact</h2>
+            <p class="text-sm leading-relaxed">For questions about these terms contact us at <a href="mailto:hello@thinkprint.io" class="text-primary link link-hover">hello@thinkprint.io</a></p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Privacy Policy -->
+    <div id="content-privacy" class="hidden">
+      <h1 class="text-3xl font-bold mb-2">Privacy Policy</h1>
+      <p class="text-base-content/40 text-sm mb-8">Last updated: May 2026</p>
+
+      <div class="prose prose-invert max-w-none space-y-6 text-base-content/70">
+
+        <div class="card bg-base-200 shadow">
+          <div class="card-body">
+            <h2 class="font-bold text-lg text-base-content">1. What We Collect</h2>
+            <p class="text-sm leading-relaxed">We collect the information you provide when creating an account (name, email, role) and the responses you give during assessments. We also collect usage data to improve the platform.</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-200 shadow">
+          <div class="card-body">
+            <h2 class="font-bold text-lg text-base-content">2. How We Use It</h2>
+            <p class="text-sm leading-relaxed">Your assessment responses are used to generate your AI-powered report. Your email is used for account communication. We never sell your personal data to third parties.</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-200 shadow">
+          <div class="card-body">
+            <h2 class="font-bold text-lg text-base-content">3. AI Processing</h2>
+            <p class="text-sm leading-relaxed">Your assessment responses are processed by the Claude AI API (Anthropic) to generate your report. Anthropic's privacy policy governs this processing. We send only your anonymised responses — not your name or email — to the AI system.</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-200 shadow">
+          <div class="card-body">
+            <h2 class="font-bold text-lg text-base-content">4. Data Storage</h2>
+            <p class="text-sm leading-relaxed">Your data is stored securely using Supabase (PostgreSQL) with row-level security. Only you and your organisation administrator can access your assessment data.</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-200 shadow">
+          <div class="card-body">
+            <h2 class="font-bold text-lg text-base-content">5. Certificates</h2>
+            <p class="text-sm leading-relaxed">Your certificate and score are publicly accessible via your unique verify link. This is intentional — certificates are designed to be shared. You can request certificate deletion by contacting us.</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-200 shadow">
+          <div class="card-body">
+            <h2 class="font-bold text-lg text-base-content">6. Your Rights</h2>
+            <p class="text-sm leading-relaxed">You have the right to access, correct or delete your personal data at any time. Contact us at <a href="mailto:hello@thinkprint.io" class="text-primary link link-hover">hello@thinkprint.io</a> to exercise these rights.</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-200 shadow">
+          <div class="card-body">
+            <h2 class="font-bold text-lg text-base-content">7. Cookies</h2>
+            <p class="text-sm leading-relaxed">We use minimal cookies for authentication and session management. We do not use advertising or tracking cookies.</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-200 shadow">
+          <div class="card-body">
+            <h2 class="font-bold text-lg text-base-content">8. Contact</h2>
+            <p class="text-sm leading-relaxed">Privacy questions: <a href="mailto:hello@thinkprint.io" class="text-primary link link-hover">hello@thinkprint.io</a></p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="border-t border-base-200 py-8 mt-16">
+    <div class="container mx-auto px-6 text-center text-sm text-base-content/40">
+      <p>&copy; 2026 ThinkPrint. All rights reserved. · <a href="terms.html" class="link link-hover">Terms</a> · <a href="contact.html" class="link link-hover">Contact</a></p>
+    </div>
+  </footer>
+
+  <script src="js/theme.js"></script>
+  <script>
+    function showTab(tab) {
+      document.getElementById('content-terms').classList.add('hidden')
+      document.getElementById('content-privacy').classList.add('hidden')
+      document.getElementById('tab-terms').classList.remove('tab-active')
+      document.getElementById('tab-privacy').classList.remove('tab-active')
+      document.getElementById(`content-${tab}`).classList.remove('hidden')
+      document.getElementById(`tab-${tab}`).classList.add('tab-active')
+    }
+
+    // Check URL hash for direct links
+    if (window.location.hash === '#privacy') showTab('privacy')
+  </script>
+</body>
+</html>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html data-theme="dark" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact — ThinkPrint</title>
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-base-100 min-h-screen">
+
+  <div class="navbar bg-base-100 border-b border-base-200 px-6 sticky top-0 z-50">
+    <div class="navbar-start">
+      <a href="index.html" class="text-xl font-bold">Think<span class="text-primary">Print</span></a>
+    </div>
+    <div class="navbar-center hidden sm:flex gap-6">
+      <a href="index.html" class="text-sm text-base-content/60 hover:text-base-content">Home</a>
+      <a href="about.html" class="text-sm text-base-content/60 hover:text-base-content">About</a>
+      <a href="pricing.html" class="text-sm text-base-content/60 hover:text-base-content">Pricing</a>
+      <a href="contact.html" class="text-sm text-primary font-medium">Contact</a>
+    </div>
+    <div class="navbar-end gap-2">
+      <button id="theme-toggle" onclick="toggleTheme()" class="btn btn-ghost btn-sm btn-circle">☀️</button>
+      <a href="login.html" class="btn btn-ghost btn-sm">Sign In</a>
+      <a href="assessment.html" class="btn btn-primary btn-sm">Start Free</a>
+    </div>
+  </div>
+
+  <div class="container mx-auto px-6 py-16 max-w-4xl">
+
+    <div class="text-center mb-12">
+      <div class="badge badge-primary badge-outline mb-4">Get In Touch</div>
+      <h1 class="text-4xl font-bold mb-4">We'd love to hear from you</h1>
+      <p class="text-base-content/60 max-w-xl mx-auto">
+        Questions about the product, partnership enquiries, or just want to share feedback — we read every message.
+      </p>
+    </div>
+
+    <div class="grid sm:grid-cols-2 gap-8">
+
+      <!-- Contact form -->
+      <div class="card bg-base-200 shadow">
+        <div class="card-body">
+          <h2 class="card-title mb-4">Send us a message</h2>
+
+          <div id="form-success" class="alert alert-success hidden mb-4">
+            <span>Message sent. We'll get back to you within 24 hours.</span>
+          </div>
+
+          <div id="form-error" class="alert alert-error hidden mb-4">
+            <span id="form-error-msg">Something went wrong. Please try again.</span>
+          </div>
+
+          <div class="form-control mb-3">
+            <label class="label"><span class="label-text font-medium">Your Name</span></label>
+            <input type="text" id="contact-name" placeholder="Alex Johnson" class="input input-bordered w-full">
+          </div>
+
+          <div class="form-control mb-3">
+            <label class="label"><span class="label-text font-medium">Email</span></label>
+            <input type="email" id="contact-email" placeholder="you@company.com" class="input input-bordered w-full">
+          </div>
+
+          <div class="form-control mb-3">
+            <label class="label"><span class="label-text font-medium">Subject</span></label>
+            <select id="contact-subject" class="select select-bordered w-full">
+              <option value="">Select a topic</option>
+              <option value="general">General enquiry</option>
+              <option value="product">Product question</option>
+              <option value="team">Team / company plans</option>
+              <option value="partnership">Partnership</option>
+              <option value="bug">Report a bug</option>
+              <option value="other">Something else</option>
+            </select>
+          </div>
+
+          <div class="form-control mb-6">
+            <label class="label"><span class="label-text font-medium">Message</span></label>
+            <textarea id="contact-message" class="textarea textarea-bordered w-full h-32" placeholder="Tell us what's on your mind..."></textarea>
+          </div>
+
+          <button id="send-btn" onclick="handleContactSubmit()" class="btn btn-primary w-full">
+            Send Message
+          </button>
+        </div>
+      </div>
+
+      <!-- Contact info -->
+      <div class="flex flex-col gap-6">
+
+        <div class="card bg-base-200 shadow">
+          <div class="card-body">
+            <h3 class="font-bold mb-1">Email</h3>
+            <a href="mailto:hello@thinkprint.io" class="text-primary link link-hover">hello@thinkprint.io</a>
+            <p class="text-sm text-base-content/50 mt-1">We respond within 24 hours on weekdays.</p>
+          </div>
+        </div>
+
+        <div class="card bg-base-200 shadow">
+          <div class="card-body">
+            <h3 class="font-bold mb-3">Common Questions</h3>
+            <div class="flex flex-col gap-3">
+              <div>
+                <p class="text-sm font-medium">Team or company plans?</p>
+                <p class="text-sm text-base-content/50">See our <a href="pricing.html" class="link link-hover text-primary">pricing page</a> or email us for a custom quote.</p>
+              </div>
+              <div>
+                <p class="text-sm font-medium">Partnership or white label?</p>
+                <p class="text-sm text-base-content/50">Email us with your company details and we'll be in touch.</p>
+              </div>
+              <div>
+                <p class="text-sm font-medium">Found a bug?</p>
+                <p class="text-sm text-base-content/50">Use the form and select "Report a bug". Include the page and what happened.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card bg-base-200 shadow">
+          <div class="card-body">
+            <h3 class="font-bold mb-3">Follow ThinkPrint</h3>
+            <p class="text-sm text-base-content/50 mb-3">Product updates, new domains and AI readiness insights.</p>
+            <div class="flex gap-3">
+              <a href="#" class="btn btn-outline btn-sm">LinkedIn</a>
+              <a href="#" class="btn btn-outline btn-sm">Twitter / X</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <footer class="border-t border-base-200 py-8 mt-16">
+    <div class="container mx-auto px-6 text-center text-sm text-base-content/40">
+      <p>&copy; 2026 ThinkPrint. All rights reserved. · <a href="terms.html" class="link link-hover">Terms</a> · <a href="contact.html" class="link link-hover">Contact</a></p>
+    </div>
+  </footer>
+
+  <script src="js/theme.js"></script>
+  <script>
+    async function handleContactSubmit() {
+      const name = document.getElementById('contact-name').value.trim()
+      const email = document.getElementById('contact-email').value.trim()
+      const subject = document.getElementById('contact-subject').value
+      const message = document.getElementById('contact-message').value.trim()
+      const btn = document.getElementById('send-btn')
+      const errorEl = document.getElementById('form-error')
+      const successEl = document.getElementById('form-success')
+
+      errorEl.classList.add('hidden')
+      successEl.classList.add('hidden')
+
+      if (!name || !email || !subject || !message) {
+        document.getElementById('form-error-msg').textContent = 'Please fill in all fields.'
+        errorEl.classList.remove('hidden')
+        return
+      }
+
+      btn.disabled = true
+      btn.innerHTML = '<span class="loading loading-spinner loading-sm"></span> Sending...'
+
+      // For now — just show success
+      // Wire to a real email service (Resend, Mailgun) later
+      setTimeout(() => {
+        successEl.classList.remove('hidden')
+        btn.innerHTML = 'Message Sent ✓'
+        document.getElementById('contact-name').value = ''
+        document.getElementById('contact-email').value = ''
+        document.getElementById('contact-subject').value = ''
+        document.getElementById('contact-message').value = ''
+      }, 1000)
+    }
+  </script>
+</body>
+</html>
