@@ -5,7 +5,7 @@
 
   // ── Supabase client ───────────────────────
   const SUPABASE_URL = 'https://ifvoqnouicytzmdwoxnj.supabase.co'
-  const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY_HERE'
+  const SUPABASE_ANON_KEY = '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'
   const { createClient } = supabase
   const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
