@@ -5,9 +5,10 @@
 
   // ── Supabase client ───────────────────────
   const SUPABASE_URL = 'https://ifvoqnouicytzmdwoxnj.supabase.co'
-  const SUPABASE_ANON_KEY = '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'
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlmdm9xbm91aWN5dHptZHdveG5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3NjM4MTIsImV4cCI6MjA5NDMzOTgxMn0.h_TLJwHNXxFDTx9k44vymrQsgI7-Phvd9Oku83Q2owE'
   const { createClient } = supabase
   const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  
 
   // ── Load domains by category ──────────────
   async function loadDomains() {
